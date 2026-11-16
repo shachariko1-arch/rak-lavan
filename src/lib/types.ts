@@ -68,8 +68,12 @@ export interface Guest {
   lastResponseAt: string | null;
   remindersSent: number;
   responseCount: number;
+  /** Who created the record: the couple, a spreadsheet import, or the guest via the public link. */
+  source: GuestSource;
   createdAt: string;
 }
+
+export type GuestSource = "host" | "import" | "public_link";
 
 export type TemplateId =
   | "classic"
@@ -144,6 +148,8 @@ export interface Wedding {
   personalMessage: string;
   photos: string[];
   rsvpDeadline: string | null;
+  /** When true, people without a personal link can still RSVP from the public invitation page. */
+  allowOpenRsvp: boolean;
   messageTemplates: MessageTemplates;
   createdAt: string;
 }
