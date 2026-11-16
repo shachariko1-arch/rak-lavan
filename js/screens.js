@@ -17,25 +17,47 @@
       ['study', '🎓', 'לימודים', 'לבסס את האנגלית'], ['general', '💬', 'לדבר בביטחון', 'בלי לחפש מילים'],
       ['fun', '🎬', 'סרטים ויוטיוב', 'להבין בלי כתוביות']] },
     { key: 'level', mood: 'think', say: 'מה רמת האנגלית שלך?', opts: [
-      ['zero', '🌱', 'מתחיל מאפס', 'כמעט לא יודע כלום'], ['some', '📶', 'יודע קצת', 'יש בסיס, רוצה להשתפר'],
-      ['ok', '😎', 'מבין אבל קשה לי לדבר', 'מבין, אבל מתבייש לדבר'], ['good', '👑', 'די טוב', 'רוצה לשפר את השטף']] },
+      ['zero', 1, 'מתחיל מאפס', 'אני לא יודע כמעט כלום'], ['some', 2, 'יודע קצת', 'יש לי בסיס, רוצה להשתפר'],
+      ['ok', 3, 'מבין אבל קשה לי לדבר', 'אני מבין, אבל מתבייש לדבר'], ['good', '👑', 'די טוב', 'אני רוצה לשפר את השטף'],
+      ['pro', '🏆', 'רוצה להשתפר ממש', 'להגיע לרמה גבוהה']] },
     { key: 'daily', mood: 'happy', say: 'כמה זמן ביום נוח לך?', opts: [
       [5, '☕', '5 דקות', 'קליל'], [10, '🚌', '10 דקות', 'רגיל'], [15, '💪', '15 דקות', 'רציני'], [20, '🚀', '20 דקות', 'אינטנסיבי']] }
   ];
+  const bars = (n) => '<svg class="bars" viewBox="0 0 30 26" width="30" height="26" aria-hidden="true">' + [0, 1, 2].map((i) => '<rect x="' + (2 + i * 10) + '" y="' + (16 - i * 7) + '" width="7" height="' + (9 + i * 7) + '" rx="2" fill="' + (i < n ? '#3C9BFF' : 'rgba(140,165,255,.3)') + '"/>').join('') + '</svg>';
+  // a three-question level check shown after the self-rating (skipped for complete beginners)
+  const QUIZ = [
+    { q: 'איך אומרים "תודה" באנגלית?', o: ['Please', 'Thank you', 'Sorry'], a: 1 },
+    { q: 'השלימו: I ___ from Israel.', o: ['am', 'is', 'are'], a: 0, ltr: true },
+    { q: 'השלימו: Yesterday I ___ to the beach.', o: ['go', 'gone', 'went'], a: 2, ltr: true }
+  ];
+  const RESULT = [['נתחיל מהבסיס, ונתקדם מהר', 'think', 'אין מה להתבייש. כל אחד מתחיל איפשהו, ואני איתך.'], ['יש לך בסיס!', 'happy', 'סבבה, נחזק את מה שיש ונוסיף ביטחון בדיבור.'], ['אחלה רמה!', 'happy', 'יש על מה לבנות. נתמקד בשיחה ובמשפטים.'], ['וואלה, תותח!', 'cheer', 'שלוש מתוך שלוש. נרוץ ישר לשיחות אמיתיות.']];
   let O = { step: -1, data: {} };
   const obHead = (pct) => '<div class="ob-head"><button class="icon-btn" data-act="ob-back" aria-label="חזרה">' + Y.ICON.back + '</button><div class="pbar"><i style="width:' + pct + '%"></i></div></div>';
 
   S.onboarding = () => {
+    if (O.quiz) {
+      const z = O.quiz;
+      if (z.i >= QUIZ.length) {
+        const r = RESULT[z.score];
+        return '<div class="ob">' + obHead(70) + '<div class="ob-body quiz-res">' + Y.mascot(r[1], 170) + '<h2>' + r[0] + '</h2><p class="auth-sub">' + r[2] + '</p>' +
+          '<div class="quiz-score">' + QUIZ.map((x, i) => '<i class="' + (z.hits[i] ? 'on' : '') + '">' + (z.hits[i] ? '✓' : '✕') + '</i>').join('') + '</div></div>' +
+          '<div class="ob-foot"><button class="btn btn-gold btn-block btn-xl" data-act="quiz-done">' + go('המשך') + '</button></div></div>';
+      }
+      const q = QUIZ[z.i];
+      return '<div class="ob">' + obHead(60 + z.i * 4) + '<div class="ob-body"><p class="eyebrow">בדיקת רמה קצרה · שאלה ' + (z.i + 1) + ' מתוך ' + QUIZ.length + '</p>' +
+        '<div class="ob-title">' + Y.mascot('think', 84) + '<h2 dir="auto">' + esc(q.q) + '</h2></div><div class="opts opts-list">' +
+        q.o.map((o, i) => '<button class="opt" data-act="quiz-pick" data-i="' + i + '"><span class="opt-lbl" dir="ltr">' + o + '</span></button>').join('') + '</div></div></div>';
+    }
     if (O.step === -1) {
       return '<div class="welcome"><span class="welcome-plane" aria-hidden="true">✈️</span>' +
-        '<div class="welcome-top">' + Y.wordmark() + '<h1>אנגלית לישראלים,<br>לחיים האמיתיים.</h1>' +
-        '<ul class="welcome-points"><li>5 דקות ביום</li><li>שיחות עם AI</li><li>' + Y.totalLessons() + ' שיעורים</li></ul></div>' +
-        '<div class="welcome-art">' + Y.skyline() + Y.mascot('wave', 200) + '</div>' +
-        '<div class="welcome-cta"><button class="btn btn-gold btn-block btn-xl" data-act="ob-start">' + go('הרשמה בחינם') + '</button>' +
+        '<div class="welcome-top">' + Y.wordmark() + '<h1>אנגלית לישראלים,<br>לחיים האמיתיים.</h1></div>' +
+        '<div class="welcome-art">' + Y.art('hero', 'hero-img', 'סאבי על הטיילת בתל אביב') + '</div>' +
+        '<ul class="welcome-points"><li>🇮🇱 בעברית, בגובה העיניים</li><li>🤖 שיחות עם AI</li><li>⏱️ 5 דקות ביום</li></ul>' +
+        '<div class="welcome-cta"><button class="btn btn-gold btn-block btn-xl" data-act="ob-start">' + go('בואו נתחיל') + '</button>' +
         '<button class="btn btn-glass btn-block" data-act="ob-login">כבר יש לי חשבון</button></div></div>';
     }
     if (O.step === Q.length) {
-      return '<div class="ob"><div class="ob-plan">' + Y.mascot('think', 150) + '<h2>בונה לך מסלול אישי...</h2>' +
+      return '<div class="ob"><div class="ob-plan">' + Y.mascot('think', 150) + '<h2>שנייה, בונה לך מסלול אישי...</h2>' +
         '<ul class="plan-list"><li>בודק את הרמה</li><li>בוחר נושאים שמתאימים למטרה</li><li>מסדר שיעורים ליעד היומי</li></ul></div></div>';
     }
     if (O.step > Q.length) {
@@ -57,13 +79,13 @@
     const q = Q[O.step], has = O.data[q.key] != null;
     return '<div class="ob">' + obHead(Math.round(((O.step + 1) / (Q.length + 1)) * 100)) +
       '<div class="ob-body"><div class="ob-title">' + Y.mascot(q.mood, 84) + '<h2>' + q.say + '</h2></div><div class="ob-opts">' +
-      q.opts.map((o) => '<button class="ob-opt' + (O.data[q.key] === o[0] ? ' sel' : '') + '" data-act="ob-pick" data-v="' + o[0] + '"><span class="ob-em">' + o[1] + '</span><span class="ob-t"><b>' + o[2] + '</b><small>' + o[3] + '</small></span></button>').join('') +
+      q.opts.map((o) => '<button class="ob-opt' + (O.data[q.key] === o[0] ? ' sel' : '') + '" data-act="ob-pick" data-v="' + o[0] + '"><span class="ob-em">' + (typeof o[1] === 'number' && q.key === 'level' ? bars(o[1]) : o[1]) + '</span><span class="ob-t"><b>' + o[2] + '</b><small>' + o[3] + '</small></span></button>').join('') +
       '</div></div><div class="ob-foot"><button class="btn btn-gold btn-block btn-xl" id="ob-next" data-act="ob-next"' + (has ? '' : ' disabled') + '>' + go('המשך') + '</button></div></div>';
   };
   const obRender = () => { const app = Y.$('#app'); app.innerHTML = S.onboarding(); app.style.animation = 'none'; void app.offsetWidth; app.style.animation = ''; if (O.step > Q.length) { setupGoogle(); const f = Y.$('#auth-form'); if (f) f.addEventListener('submit', (e) => { e.preventDefault(); authSubmit(); }); } };
   A['ob-start'] = () => { O.step = 0; Y.sfx('whoosh'); obRender(); };
   A['ob-login'] = () => { O.login = true; O.step = Q.length + 1; Y.sfx('whoosh'); obRender(); };
-  A['ob-back'] = () => { O.step = O.login ? -1 : (O.step > Q.length ? Q.length - 1 : O.step - 1); O.login = false; Y.sfx('tap'); obRender(); };
+  A['ob-back'] = () => { if (O.quiz) { O.quiz = null; Y.sfx('tap'); return obRender(); } O.step = O.login ? -1 : (O.step > Q.length ? Q.length - 1 : O.step - 1); O.login = false; Y.sfx('tap'); obRender(); };
   A['ob-pick'] = (el) => {
     const q = Q[O.step]; let v = el.dataset.v; if (q.key === 'daily') v = +v;
     O.data[q.key] = v; Y.sfx('select');
@@ -72,9 +94,20 @@
     el.classList.add('sel');
     Y.$('#ob-next').disabled = false;
   };
+  A['quiz-pick'] = (el) => {
+    const z = O.quiz, q = QUIZ[z.i], i = +el.dataset.i, ok = i === q.a;
+    if (z.lock) return; z.lock = true;
+    z.hits[z.i] = ok; if (ok) z.score++;
+    Y.sfx(ok ? 'ok' : 'bad'); el.classList.add(ok ? 'right' : 'wrong');
+    if (!ok) Y.$$('.opt')[q.a].classList.add('right');
+    setTimeout(() => { z.i++; z.lock = false; if (z.i >= QUIZ.length) Y.sfx('unlock'); obRender(); }, 850);
+  };
+  A['quiz-done'] = () => { O.data.placement = O.quiz.score; O.quiz = null; O.quizDone = true; Y.sfx('whoosh'); O.step++; obRender(); if (O.step === Q.length) planThenAuth(); };
+  const planThenAuth = () => setTimeout(() => { if (O.step === Q.length) { O.step++; Y.sfx('unlock'); obRender(); } }, 2300);
   A['ob-next'] = () => {
+    if (Q[O.step].key === 'level' && O.data.level !== 'zero' && !O.quizDone) { O.quiz = { i: 0, score: 0, hits: [] }; Y.sfx('whoosh'); return obRender(); }
     Y.sfx('whoosh'); O.step++; obRender();
-    if (O.step === Q.length) setTimeout(() => { if (O.step === Q.length) { O.step++; Y.sfx('unlock'); obRender(); } }, 2300);
+    if (O.step === Q.length) planThenAuth();
   };
   const obFinish = (extra) => {
     const name = (Y.$('#ob-name') ? Y.$('#ob-name').value : '').trim() || (extra && extra.name) || '';
@@ -183,23 +216,30 @@
   };
   const BOTS = [['נועה', '🦊'], ['איתי', '🐼'], ['מאיה', '🦄'], ['יונתן', '🐯'], ['שירה', '🐬'], ['עומר', '🦉'], ['תמר', '🐨'], ['דניאל', '🦁'], ['ליאור', '🐙']];
 
+  const sabiLine = (st, today, goal) => {
+    const n = esc(st.user.name || '');
+    if (today >= goal) return 'אלוף העולם, ' + n + '! היעד של היום בכיס 🎯';
+    if (!Y.doneCount()) return 'אהלן ' + n + '! יאללה, שיעור ראשון? 5 דקות וסיימנו.';
+    if (Y.liveStreak() >= 2) return Y.liveStreak() + ' ימים ברצף, ' + n + '. לא שוברים רצף כזה!';
+    return Y.pick(['מה קורה ' + n + '? יאללה, חמש דקות ואנחנו שם.', 'סבבה ' + n + ', ממשיכים מאיפה שעצרנו?', n + ', הקפה מוכן? בוא נלמד משהו.']);
+  };
   S.home = () => {
     const st = Y.state, goal = Y.dailyGoalXp(), today = Y.todayXp(), nx = Y.nextLesson(), lg = leagueInfo();
     const mission = nx
       ? '<button class="mission" data-act="node" data-u="' + nx.unit.id + '" data-i="' + nx.i + '"><h2>המשימה שלך להיום</h2>' +
-        '<div class="mission-row"><span class="mission-em">' + nx.unit.lessons[nx.i].e + '</span><span class="mission-txt"><b>' + esc(nx.unit.lessons[nx.i].t) + '</b><small>שיעור · 5 דקות · ' + esc(nx.unit.title) + '</small></span><span class="play-btn">' + Y.ICON.play + '</span></div>' +
+        '<div class="mission-row">' + (nx.unit.scene === 'cafe' ? Y.art('coffee', 'mission-img') : '<span class="mission-em">' + nx.unit.lessons[nx.i].e + '</span>') + '<span class="mission-txt"><b>' + esc(nx.unit.lessons[nx.i].t) + '</b><small>שיעור · 5 דקות · ' + esc(nx.unit.title) + '</small></span><span class="play-btn">' + Y.ICON.play + '</span></div>' +
         '<div class="goalbar"><div class="pbar pbar-gold"><i style="width:' + Math.max(4, Math.min(100, Math.round((today / goal) * 100))) + '%"></i></div><small>' + (today >= goal ? 'היעד היומי הושלם. כל שיעור נוסף הוא בונוס.' : 'עוד ' + Y.xpTxt(goal - today) + ' ליעד של היום') + '</small></div></button>'
       : '<button class="mission" data-act="tab" data-tab="plus"><h2>סיימת את כל השיעורים הפתוחים</h2><div class="mission-row"><span class="mission-em">👑</span><span class="mission-txt"><b>פרימיום פותח את כל המסלולים</b><small>' + Y.totalLessons() + ' שיעורים מחכים</small></span><span class="play-btn">' + Y.ICON.play + '</span></div></button>';
     const nRev = st.mistakes.length || Math.min(Object.keys(st.words).length, 10);
     return page('home',
       '<header class="hello">' + avatar() + '<h1>שלום, ' + esc(st.user.name || 'אורח') + ' 👋</h1><button class="heart-chip" data-act="hearts-info" aria-label="לבבות">❤️ <b>' + (Y.isPlus() ? '∞' : Y.hearts()) + '</b></button></header>' +
-      '<div class="stats"><div class="stat"><b>🔥 ' + Y.liveStreak() + '</b><small>ימי רצף</small></div><div class="stat"><b class="gold">⭐ ' + st.xp + '</b><small>XP</small></div><div class="stat"><b dir="ltr">' + Y.level() + '</b><small>הרמה שלך</small></div></div>' +
-      mission +
+      '<div class="stats"><div class="stat"><b>🔥 <span data-count="' + Y.liveStreak() + '">0</span></b><small>ימי רצף</small></div><div class="stat"><b class="gold">⭐ <span data-count="' + st.xp + '">0</span></b><small>XP</small></div><div class="stat"><b dir="ltr">' + Y.level() + '</b><small>הרמה שלך</small></div></div>' +
+      Y.sabiSay(today >= goal ? 'cheer' : 'wave', sabiLine(st, today, goal)) + mission +
       '<button class="mini-card is-ai" data-act="tab" data-tab="ai"><span class="mini-em">🤖</span><span class="mini-txt"><b>שיחה עם סאבי AI</b><small>סימולציה חיה: בית קפה, שדה תעופה, ראיון</small></span><span class="chev">' + Y.ICON.back + '</span></button>' +
       '<button class="mini-card" data-act="quick-review"><span class="mini-em">🏋️</span><span class="mini-txt"><b>' + (nRev ? nRev + ' מילים לחזרה' : 'חזרה על מילים') + '</b><small>' + (st.mistakes.length ? 'חיזוק מילים שהתבלבלת בהן' : 'חיזוק מילים שלמדת') + '</small></span><span class="chev">' + Y.ICON.back + '</span></button>' +
       '<button class="mini-card" data-act="tab" data-tab="league"><span class="mini-em">' + lg.tier[1] + '</span><span class="mini-txt"><b>' + lg.tier[0] + ' · מקום ' + lg.rank + '</b><small>' + Y.xpTxt(lg.mine) + ' השבוע</small></span><span class="chev">' + Y.ICON.back + '</span></button>' +
       (Y.isPlus() ? '' : '<button class="mini-card is-gold" data-act="tab" data-tab="plus"><span class="mini-em">👑</span><span class="mini-txt"><b>יאללה פרימיום</b><small>כל השיעורים, לבבות ללא הגבלה</small></span><span class="pill pill-gold">' + C.PRICE_ILS + ' ₪</span></button>') +
-      '<div class="sky-wrap">' + Y.skyline() + '</div>', 'page-home');
+      '<div class="sky-wrap">' + Y.art('skyline', 'sky-img') + '</div>', 'page-home');
   };
   A['quick-review'] = () => Y.startLesson(Y.buildPractice(Y.state.mistakes.length && Y.isPlus() ? 'mistakes' : 'mix'));
 
@@ -216,11 +256,11 @@
         '<div class="tl">' + u.lessons.map((l, i) => {
           const s = Y.status(u, i), id = Y.lid(u, i), cur = id === current;
           const icon = s === 'done' ? Y.ICON.check : s === 'open' ? Y.ICON.play : s === 'plus' ? Y.ICON.crown : Y.ICON.lock;
-          return '<button class="tl-row is-' + s + (cur ? ' cur' : '') + '" data-act="node" data-u="' + u.id + '" data-i="' + i + '"><span class="tl-em">' + l.e + '</span><span class="tl-t">' + esc(l.t) + '</span><span class="tl-s">' + icon + '</span></button>';
+          return '<button class="tl-row is-' + s + (cur ? ' cur' : '') + '" data-act="node" data-u="' + u.id + '" data-i="' + i + '">' + (cur ? '<span class="tl-sabi">' + Y.mascot('wave', 58) + '</span>' : '') + '<span class="tl-em">' + l.e + '</span><span class="tl-t">' + esc(l.t) + '</span><span class="tl-s">' + icon + '</span></button>';
         }).join('') + '</div>';
       return h;
     }).join('');
-    return page('path', '<h1 class="page-title">מסלול הלמידה</h1>' + html + '<div class="sky-wrap">' + Y.skyline() + '</div>');
+    return page('path', '<h1 class="page-title">מסלול הלמידה</h1>' + html + '<div class="sky-wrap">' + Y.art('skyline', 'sky-img') + '</div>');
   };
   const findUnit = (id) => Y.COURSE.find((u) => u.id === id);
   A['node'] = (el) => {
@@ -275,7 +315,7 @@
     const st = Y.state, price = C.PRICE_ILS, trial = C.TRIAL_DAYS;
     const perks = [['כל ' + Y.totalLessons() + ' השיעורים והמסלולים', 'טיולים, עבודה, יומיום וילדים'], ['שיחות AI ללא הגבלה', 'מדברים עם סאבי כמה שרוצים'], ['לבבות ללא הגבלה', 'טועים, לומדים וממשיכים בלי לחכות'], ['חזרה חכמה על מילים', 'התרגול מתמקד במה שקשה לך'], ['אימון הקשבה', 'מבינים אנגלית מדוברת'], ['תוכן חדש בכל חודש', 'המסלולים ממשיכים לגדול']];
     const list = '<ul class="perks">' + perks.map((p) => '<li><span>✓</span><div><b>' + p[0] + '</b><small>' + p[1] + '</small></div></li>').join('') + '</ul>';
-    const hero = '<section class="plus-hero"><div class="plus-crown">👑</div>' + '<div class="wordmark wordmark-s" dir="ltr"><span>YALLA <b style="padding:0">English</b></span><i>Premium</i></div>';
+    const hero = Y.art('london', 'plus-art') + '<section class="plus-hero"><div class="plus-crown">👑</div>' + '<div class="wordmark wordmark-s" dir="ltr"><span>YALLA <b style="padding:0">English</b></span><i>Premium</i></div>';
     if (Y.isPlus()) {
       return page('plus', backRow('profile') + hero + '<p>הפרימיום שלך פעיל. כל התוכן פתוח והלבבות ללא הגבלה.</p></section>' + list +
         '<div class="card-plain"><b>המנוי שלך</b><p>' + price + ' ₪ לחודש · פעיל מאז ' + esc(st.plus.since.split('-').reverse().join('.')) + '</p><button class="btn btn-ghost btn-block" data-act="plus-cancel">ביטול המנוי</button></div>');
@@ -285,7 +325,7 @@
       '<p class="fine">' + (trial ? trial + ' ימי ניסיון חינם · ' : '') + 'ביטול בכל עת · ללא התחייבות</p>' +
       '<table class="cmp"><thead><tr><th></th><th>חינם</th><th>פרימיום</th></tr></thead><tbody>' +
       [['יחידות הבסיס ושיעור טעימה מכל יחידה', 1, 1], ['כל ' + Y.totalLessons() + ' השיעורים', 0, 1], ['שיחות AI עם סאבי', '6 ביום', 1], ['לבבות ללא הגבלה', 0, 1], ['חזרה על טעויות ואימון הקשבה', 0, 1], ['מילון אישי וליגה שבועית', 1, 1]].map((r) => '<tr><td>' + r[0] + '</td><td>' + (typeof r[1] === 'string' ? r[1] : r[1] ? '✓' : '–') + '</td><td class="yes">' + (r[2] ? '✓' : '–') + '</td></tr>').join('') + '</tbody></table>' +
-      '<div class="sky-wrap">' + Y.skyline() + '</div>');
+      '<div class="sky-wrap">' + Y.art('skyline', 'sky-img') + '</div>');
   };
   A['plus-buy'] = () => {
     if (C.PAYMENT_URL) { window.open(C.PAYMENT_URL, '_blank', 'noopener'); return; }
@@ -352,6 +392,7 @@
     app.className = 'app app-' + name;
     app.style.animation = 'none'; void app.offsetWidth; app.style.animation = '';
     const p = Y.$('#page'); if (p) p.scrollTop = 0;
+    Y.$$('[data-count]', app).forEach((el) => Y.countUp(el, +el.dataset.count, 900));
     if (name === 'path') { const cur = Y.$('.tl-row.cur'); if (cur && Y.doneCount()) cur.scrollIntoView({ block: 'center' }); }
   };
 })();

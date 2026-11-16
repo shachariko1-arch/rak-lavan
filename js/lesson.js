@@ -126,7 +126,7 @@
     const begin = () => { if (!P) return; renderShell(); next(true); };
     if (session.mode === 'lesson') {
       Y.$('#app').className = 'app app-lesson';
-      Y.$('#app').innerHTML = '<div class="loading">' + Y.mascot('think', 120) + '<p>מכין את השיעור...</p></div>';
+      Y.$('#app').innerHTML = '<div class="loading">' + Y.mascot('think', 130) + '<p>שנייה, סאבי מכין את השיעור...</p></div>';
       const mine = P;
       Promise.race([Promise.all([Y.loadPack(session.unit.id), Y.loadPack('words')]), new Promise((r) => setTimeout(r, 4000))]).then(() => { if (P === mine) begin(); });
     } else { Y.loadPack('words'); begin(); }
@@ -187,7 +187,7 @@
     learn: (ex, body) => {
       const w = ex.word, e = ex.example;
       body.innerHTML = '<h2 class="ex-title">מילה חדשה</h2>' +
-        '<button class="word-card" data-act="say" data-say="' + esc(w.en) + '"><span class="word-count">' + ex.n + '/' + ex.of + '</span><span class="word-em">' + w.em + '</span>' +
+        '<button class="word-card" data-act="say" data-say="' + esc(w.en) + '"><span class="word-count">' + ex.n + '/' + ex.of + '</span>' + (w.en === 'coffee' ? Y.art('coffee', 'word-img', 'coffee') : '<span class="word-em">' + w.em + '</span>') +
         '<span class="word-en" dir="ltr">' + esc(w.en) + '<span class="spk">' + Y.ICON.speaker + '</span></span><span class="word-he">' + esc(w.he) + '</span></button>' + (Y.canSpeakHe() ? '<button class="link-btn he-link" data-act="say-he" data-say="' + esc(w.he) + '">🔊 להשמיע בעברית</button>' : '') +
         (e ? '<p class="ex-label">דוגמה:</p><button class="ex-line" data-act="say" data-say="' + esc(e.en) + '"><span class="spk">' + Y.ICON.speaker + '</span><span>' + esc(e.en) + '<small>' + esc(e.he) + '</small></span></button>' : '');
       Y.noteWord(w, false);
@@ -229,7 +229,7 @@
       body.innerHTML = '<h2 class="ex-title">בוא נדבר! 🎙️</h2><p class="ex-hint">' + esc(ex.sub) + '</p><div class="speak-box">' +
         '<div class="mic-row"><span class="wave"><i></i><i></i><i></i><i></i><i></i></span><button class="mic" id="micbtn" data-act="mic" aria-label="לחצו ודברו">' + Y.ICON.mic + '</button><span class="wave"><i></i><i></i><i></i><i></i><i></i></span></div>' +
         '<div class="say-line" dir="ltr">' + Y.speakBtn(ex.prompt) + '<span>' + esc(ex.prompt) + '</span></div>' +
-        '<p class="ex-hint" id="michint">לחצו על המיקרופון ואמרו את המשפט</p>' + Y.mascot('happy', 110) + '</div>';
+        '<p class="ex-hint" id="michint">לחצו על המיקרופון ואמרו את המשפט</p>' + Y.art('sabi-headphones', 'speak-art', 'סאבי מקשיב') + '</div>';
       foot('<button class="link-btn" data-act="ex-skip">אי אפשר לדבר עכשיו</button>');
       setTimeout(() => { if (P && P.cur === ex) Y.speak(ex.prompt); }, 450);
     }
@@ -265,13 +265,13 @@
     if (ok) {
       Y.sfx('ok'); Y.confetti(true);
       if (ex.say && !opts.quiet) setTimeout(() => Y.speak(ex.say), 250);
-      foot('<div class="fb"><div class="fb-ico">' + Y.ICON.check + '</div><div class="fb-txt"><b>' + (opts.title || Y.praise()) + '</b>' + (opts.note ? '<span>' + opts.note + '</span>' : '') + '</div></div>' +
+      foot('<div class="fb"><div class="fb-sabi">' + Y.mascot('cheer', 66) + '</div><div class="fb-txt"><b>' + (opts.title || Y.praise()) + '</b>' + (opts.note ? '<span>' + opts.note + '</span>' : '') + '</div></div>' +
         mainBtn('המשך', 'ex-continue', false, 'btn-ok'), 'is-ok');
     } else {
       Y.sfx('bad'); P.mistakes++;
       if (P.s.mode === 'lesson') { if (!Y.isPlus()) setTimeout(() => Y.sfx('heart'), 260); Y.loseHeart(); const h = Y.$('.lh-hearts'); if (h) { h.outerHTML = heartsHtml(); const n = Y.$('.lh-hearts'); n.classList.add('hit'); } }
       P.q.push(Object.assign({}, ex, { retry: true })); // come back to it at the end
-      foot('<div class="fb"><div class="fb-ico">' + Y.ICON.close + '</div><div class="fb-txt"><b>' + Y.comfort() + '</b><span>התשובה הנכונה: <em dir="ltr">' + esc(opts.answer || '') + '</em></span></div></div>' +
+      foot('<div class="fb"><div class="fb-sabi is-sad">' + Y.mascot('sad', 66) + '</div><div class="fb-txt"><b>' + Y.comfort() + '</b><span>התשובה הנכונה: <em dir="ltr">' + esc(opts.answer || '') + '</em></span></div></div>' +
         mainBtn('הבנתי', 'ex-continue', false, 'btn-bad'), 'is-bad');
     }
     Y.save();

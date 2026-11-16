@@ -40,7 +40,7 @@
   Y.screens.ai = () => {
     const left = leftToday();
     return '<main class="page" id="page"><div class="back-row"><button class="icon-btn" data-act="tab" data-tab="home" aria-label="חזרה">' + Y.ICON.back + '</button></div>' +
-      '<section class="league-hero">' + Y.mascot('wave', 120) + '<h1>שיחה עם סאבי</h1><p>סימולציה חיה באנגלית. סאבי עונה, מתרגם ומתקן בעדינות.</p>' +
+      '<section class="league-hero">' + Y.art('sabi-headphones', 'ai-art', 'סאבי עם אוזניות') + '<h1>שיחה עם סאבי</h1><p>סימולציה חיה באנגלית. סאבי עונה, מתרגם ומתקן בעדינות.</p>' +
       (Y.isPlus() ? '' : '<div class="league-me">נשארו היום <b>' + left + '</b> הודעות בחינם</div>') + '</section>' +
       '<div class="pcards">' + SCENES.map((s) => '<button class="pcard" data-act="ai-open" data-id="' + s.id + '"><span class="pcard-em">' + s.e + '</span><span class="pcard-t"><b>' + s.t + '</b><small>' + s.d + '</small></span><span class="chev">' + Y.ICON.back + '</span></button>').join('') + '</div>' +
       '<p class="fine">התשובות נכתבות על ידי בינה מלאכותית ועלולות לטעות.</p></main>';

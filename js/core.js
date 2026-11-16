@@ -372,17 +372,34 @@
   };
 
   /* ───────── animated lesson scene ───────── */
-  Y.PLACES = { city: 'ברחוב בעיר', home: 'בבית', cafe: 'בבית קפה בתל אביב', airport: 'בשדה התעופה', hotel: 'בקבלה של המלון', street: 'באמצע העיר', shop: 'בחנות', party: 'בערב עם חברים', office: 'במשרד', clinic: 'במרפאה', kids: 'בגן השעשועים', chat: 'בשיחה עם מקומיים' };
+  Y.PLACES = { city: 'בטיילת בתל אביב', home: 'בבית, בסלון', cafe: 'בבית קפה בתל אביב', airport: 'בנתב"ג, רגע לפני הטיסה', hotel: 'בקבלה של מלון באילת', street: 'בשדרות רוטשילד', shop: 'בשוק הכרמל', party: 'בערב שישי עם החבר׳ה', office: 'במשרד הייטק בהרצליה', clinic: 'בקופת חולים', kids: 'בגן השעשועים', chat: 'עם תיירים בטיילת' };
+  Y.art = (name, cls, alt) => '<img class="art ' + (cls || '') + '" src="assets/art/' + name + '.jpg" alt="' + (alt || '') + '" loading="lazy" draggable="false">';
+  Y.sabiSay = (mood, text, size) => '<div class="sabi-say">' + Y.mascot(mood, size || 78) + '<div class="say-b">' + text + '</div></div>';
+  const FLAG = '<svg class="flag" viewBox="0 0 60 70" aria-hidden="true"><rect x="2" y="2" width="3" height="68" rx="1.500" fill="#DCE4F7"/><g class="flag-cloth"><rect x="5" y="4" width="46" height="32" rx="2" fill="#fff"/><rect x="5" y="8" width="46" height="5" fill="#1F47C9"/><rect x="5" y="27" width="46" height="5" fill="#1F47C9"/><path d="M28 15 l5 8.600 h-10z M28 25.600 l-5 -8.600 h10z" fill="none" stroke="#1F47C9" stroke-width="1.600"/></g></svg>';
+  // Tel Aviv seafront: sea, the three towers (round, triangle, square), hotels and palms
+  Y.cityArt = (sky) => {
+    const night = sky === 'night', c1 = night ? '#16297F' : sky === 'sunset' ? '#5A3F9A' : '#6E93DB', c2 = night ? '#0F1F6B' : sky === 'sunset' ? '#3F2C7A' : '#547BC8', wn = night ? '#FFD97A' : '#EAF2FF';
+    const win = (x, y, w, h) => { let o = ''; for (let yy = y + 5; yy < y + h - 4; yy += 8) for (let xx = x + 4; xx < x + w - 4; xx += 7) if ((xx * 3 + yy * 7) % 4 < (night ? 2 : 3)) o += '<rect x="' + xx + '" y="' + yy + '" width="3" height="4" fill="' + wn + '" opacity=".75"/>'; return o; };
+    const blk = (x, w, h, c) => '<rect x="' + x + '" y="' + (112 - h) + '" width="' + w + '" height="' + h + '" rx="2" fill="' + c + '"/>' + win(x, 112 - h, w, h);
+    const palm = (x, sc) => '<g transform="translate(' + x + ' 124) scale(' + sc + ')"><path d="M0 0 Q-3 -24 2 -44" stroke="#3B2A16" stroke-width="4" fill="none" stroke-linecap="round"/><path d="M2 -44 Q-18 -52 -26 -38 M2 -44 Q-12 -62 -24 -58 M2 -44 Q8 -64 22 -60 M2 -44 Q22 -52 28 -38 M2 -44 Q2 -62 -4 -68" stroke="#1F7A3A" stroke-width="5" fill="none" stroke-linecap="round"/></g>';
+    return '<svg class="city-art" viewBox="0 0 400 130" preserveAspectRatio="xMidYMax slice" aria-hidden="true">' +
+      blk(6, 34, 46, c2) + blk(46, 26, 66, c1) + blk(78, 40, 38, c2) +
+      '<rect x="128" y="24" width="30" height="88" rx="15" fill="' + c1 + '"/>' + win(130, 30, 26, 80) + '<path d="M166 112 V34 L200 112Z" fill="' + c2 + '"/>' + blk(204, 30, 74, c1) +
+      blk(244, 36, 44, c2) + blk(286, 24, 62, c1) + blk(316, 44, 34, c2) + blk(364, 30, 52, c1) +
+      '<rect x="0" y="110" width="400" height="20" fill="' + (night ? '#0C2A7A' : '#2F8FD6') + '"/><path d="M0 114 q10 -3 20 0 t20 0 t20 0 t20 0 t20 0 t20 0 t20 0 t20 0 t20 0 t20 0 t20 0 t20 0 t20 0 t20 0 t20 0 t20 0 t20 0 t20 0 t20 0 t20 0" fill="none" stroke="#fff" stroke-width="1.500" opacity=".5"/>' +
+      palm(22, 1) + palm(378, .9) + palm(300, .7) + '</svg>';
+  };
   Y.scene = (key, who, emoji) => {
     const sc = Y.SCENES[key] || Y.SCENES.city;
+    if (key === 'cafe') return '<div class="scene scene-img">' + Y.art('cafe', '', 'סאבי בבית קפה בתל אביב') + '</div>';
     return '<div class="scene sky-' + sc.sky + '" aria-hidden="true">' +
       '<div class="scene-orb"></div><div class="scene-cloud c1"></div><div class="scene-cloud c2"></div>' +
-      '<div class="scene-far">' + sc.far.map((f) => '<span>' + f + '</span>').join('') + '</div>' +
+      Y.cityArt(sc.sky) + FLAG +
       '<div class="scene-mover ' + sc.dir + '">' + sc.mover + '</div>' +
       '<div class="scene-ground"></div>' +
       '<div class="scene-actors"><span class="actor actor-who">' + (who || '🧑') + '</span>' +
       '<span class="actor-prop">' + (emoji || '') + '</span>' +
-      '<span class="actor actor-sabi">' + Y.mascot('wave', 92) + '</span></div></div>';
+      '<span class="actor actor-sabi">' + Y.mascot('wave', 96) + '</span></div></div>';
   };
 
   /* ───────── toast, sheet, confetti ───────── */
@@ -515,6 +532,6 @@
     '<button class="spk' + (big ? ' spk-big' : '') + '" data-act="say" data-say="' + Y.esc(text) + '" aria-label="השמע">' + Y.ICON.speaker + '</button>';
   Y.wordmark = (sub) => '<div class="wordmark" dir="ltr" aria-label="Yalla English"><span>YALLA</span><b>English</b>' + (sub ? '<i>' + sub + '</i>' : '') + '</div>';
 
-  Y.praise = () => Y.pick(['מעולה!', Y.g('אלוף!', 'אלופה!'), 'וואלה, מושלם!', Y.g('תותח!', 'תותחית!'), 'יפה מאוד!', 'בול!', 'חבל על הזמן!', 'אש! 🔥', 'כל הכבוד!']);
-  Y.comfort = () => Y.pick(['לא נורא, ממשיכים', 'כמעט! ככה לומדים', 'קורה לכולם', 'עוד רגע זה יישב']);
+  Y.praise = () => Y.pick(['סבבה!', 'אחלה!', 'יאללה, ממשיכים!', 'מעולה!', Y.g('אלוף!', 'אלופה!'), 'וואלה, מושלם!', Y.g('תותח!', 'תותחית!'), 'יפה מאוד!', 'בול!', 'חבל על הזמן!', 'אש! 🔥', 'כל הכבוד!']);
+  Y.comfort = () => Y.pick(['עזוב, קטן עלינו', 'לא נורא, ממשיכים', 'כמעט! ככה לומדים', 'קורה לכולם', 'עוד רגע זה יישב']);
 })();
