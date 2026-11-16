@@ -139,8 +139,8 @@ em { font-style: normal; font-weight: 700; }
 @keyframes plane { 0% { transform: translate(0, 60px); } 100% { transform: translate(560px, -40px); } }
 .welcome h1 { font-size: 23px; font-style: normal; font-weight: 700; max-width: 16ch; }
 .welcome-art { position: relative; flex: 1; width: 100%; display: flex; align-items: flex-end; justify-content: center; min-height: 250px; }
-.welcome-art .skyline { position: absolute; left: 0; right: 0; bottom: 0; height: 150px; opacity: .8; }
-.welcome-art::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 150px; background: linear-gradient(transparent, var(--night-0) 70%); z-index: 2; }
+.welcome-art .skyline { position: absolute; left: 0; right: 0; bottom: 118px; height: 170px; }
+.welcome-art::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 120px; background: #081350; z-index: 0; }
 .welcome-art .sabi { position: relative; z-index: 1; margin-bottom: 142px; animation: hero-in .7s .2s cubic-bezier(.3, 1.5, .5, 1) both, bob 3.2s 1s ease-in-out infinite; }
 @keyframes hero-in { from { transform: translateY(80px) scale(.7); opacity: 0; } }
 .welcome-cta { position: absolute; left: var(--gl); right: var(--gr); bottom: calc(16px + env(safe-area-inset-bottom, 0px)); z-index: 3; display: grid; gap: 2px; }
