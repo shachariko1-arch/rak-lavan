@@ -15,7 +15,7 @@
     if (e.key === 'Enter' && !e.target.closest('button, input, a')) { const b = Y.$('#mainbtn'); if (b && !b.disabled) b.click(); }
   });
 
-  Y.go(Y.state.onboarded ? 'home' : 'onboarding');
+  Y.boot();
 
   if ('serviceWorker' in navigator && location.protocol === 'https:') {
     navigator.serviceWorker.register('sw.js').catch(() => { /* offline support is optional */ });

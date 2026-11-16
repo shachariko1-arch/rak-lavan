@@ -1,5 +1,5 @@
 /* Yalla English – offline cache */
-const CACHE = 'yalla-english-v3';
+const CACHE = 'yalla-english-v4';
 const FILES = ['./', 'index.html', 'css/app.css', 'js/config.js', 'js/data.js', 'js/core.js', 'js/lesson.js', 'js/screens.js', 'js/ai.js', 'js/app.js',
   'assets/logo.jpg', 'assets/icon-192.png', 'assets/icon-512.png', 'manifest.webmanifest'];
 self.addEventListener('install', (e) => { e.waitUntil(caches.open(CACHE).then((c) => c.addAll(FILES)).then(() => self.skipWaiting())); });

@@ -294,54 +294,67 @@
 
   /* ───────── Sabi the mascot: a sabra cactus with a detective hat and a backpack ───────── */
   const DEFS = '<defs>' +
-    '<radialGradient id="sb-body" cx="34%" cy="26%" r="85%"><stop offset="0" stop-color="#DDF57A"/><stop offset=".45" stop-color="#9FD63C"/><stop offset="1" stop-color="#5C9D1E"/></radialGradient>' +
-    '<linearGradient id="sb-hat" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#E0B274"/><stop offset="1" stop-color="#A9743A"/></linearGradient>' +
-    '<linearGradient id="sb-pack" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#C98A4B"/><stop offset="1" stop-color="#7A4A1E"/></linearGradient>' +
-    '<clipPath id="sb-hatclip"><path d="M54 78 Q54 26 100 24 Q146 26 146 78 Z"/></clipPath></defs>';
+    '<linearGradient id="sb-body" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#7FBE2E"/><stop offset=".28" stop-color="#C6EE5E"/><stop offset=".6" stop-color="#93D038"/><stop offset="1" stop-color="#4F9018"/></linearGradient>' +
+    '<linearGradient id="sb-shade" x1="0" y1="0" x2="0" y2="1"><stop offset=".55" stop-color="#2E6A0E" stop-opacity="0"/><stop offset="1" stop-color="#2E6A0E" stop-opacity=".45"/></linearGradient>' +
+    '<linearGradient id="sb-hat" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#EBC389"/><stop offset=".55" stop-color="#C4904E"/><stop offset="1" stop-color="#8E5D28"/></linearGradient>' +
+    '<linearGradient id="sb-brim" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#D2A261"/><stop offset="1" stop-color="#94602A"/></linearGradient>' +
+    '<linearGradient id="sb-pack" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#C98A4B"/><stop offset="1" stop-color="#75451A"/></linearGradient>' +
+    '<radialGradient id="sb-eye" cx="40%" cy="35%" r="70%"><stop offset="0" stop-color="#4A5FA8"/><stop offset=".6" stop-color="#1B2552"/><stop offset="1" stop-color="#0D1330"/></radialGradient>' +
+    '<clipPath id="sb-hatclip"><path d="M64 98 Q60 34 120 30 Q180 34 176 98 Q120 112 64 98Z"/></clipPath>' +
+    '<clipPath id="sb-bodyclip"><rect x="68" y="72" width="104" height="168" rx="52"/></clipPath></defs>';
+  const OUT = '#2F6410';
   Y.mascot = (mood, size) => {
     mood = mood || 'happy'; size = size || 120;
     const up = mood === 'cheer';
     const key = mood === 'wave' ? 'happy' : mood;
+    const eye = (cx, cy, dx, dy) => '<ellipse cx="' + cx + '" cy="' + cy + '" rx="15.500" ry="18" fill="#fff" stroke="' + OUT + '" stroke-width="2"/>' +
+      '<circle cx="' + (cx + dx) + '" cy="' + (cy + dy) + '" r="10" fill="url(#sb-eye)"/><circle cx="' + (cx + dx - 3.500) + '" cy="' + (cy + dy - 4.500) + '" r="3.800" fill="#fff"/><circle cx="' + (cx + dx + 3.500) + '" cy="' + (cy + dy + 3.500) + '" r="1.700" fill="#fff" opacity=".85"/>';
     const eyes = {
-      happy: '<ellipse cx="82" cy="118" rx="12" ry="14" fill="#fff"/><ellipse cx="118" cy="118" rx="12" ry="14" fill="#fff"/><circle cx="84" cy="120" r="7" fill="#1B2340"/><circle cx="120" cy="120" r="7" fill="#1B2340"/><circle cx="87" cy="116" r="2.6" fill="#fff"/><circle cx="123" cy="116" r="2.6" fill="#fff"/>',
-      cheer: '<path d="M71 121 Q82 106 93 121" fill="none" stroke="#1B2340" stroke-width="5" stroke-linecap="round"/><path d="M107 121 Q118 106 129 121" fill="none" stroke="#1B2340" stroke-width="5" stroke-linecap="round"/>',
-      sad: '<ellipse cx="82" cy="120" rx="12" ry="13" fill="#fff"/><ellipse cx="118" cy="120" rx="12" ry="13" fill="#fff"/><circle cx="82" cy="124" r="6.5" fill="#1B2340"/><circle cx="118" cy="124" r="6.5" fill="#1B2340"/><path d="M68 102 L92 108" stroke="#3F7513" stroke-width="5" stroke-linecap="round"/><path d="M132 102 L108 108" stroke="#3F7513" stroke-width="5" stroke-linecap="round"/>',
-      think: '<ellipse cx="82" cy="118" rx="12" ry="14" fill="#fff"/><ellipse cx="118" cy="118" rx="12" ry="14" fill="#fff"/><circle cx="79" cy="115" r="7" fill="#1B2340"/><circle cx="115" cy="115" r="7" fill="#1B2340"/><path d="M106 98 L132 93" stroke="#3F7513" stroke-width="5" stroke-linecap="round"/>'
+      happy: eye(100, 140, 1.500, 1) + eye(140, 140, 1.500, 1),
+      cheer: '<path d="M86 144 Q100 124 114 144" fill="none" stroke="#17203F" stroke-width="6" stroke-linecap="round"/><path d="M126 144 Q140 124 154 144" fill="none" stroke="#17203F" stroke-width="6" stroke-linecap="round"/>',
+      sad: eye(100, 144, 0, 5) + eye(140, 144, 0, 5) + '<path d="M84 122 Q98 118 112 126" fill="none" stroke="' + OUT + '" stroke-width="5" stroke-linecap="round"/><path d="M156 122 Q142 118 128 126" fill="none" stroke="' + OUT + '" stroke-width="5" stroke-linecap="round"/>',
+      think: eye(100, 140, -3, -4) + eye(140, 140, -3, -4) + '<path d="M128 116 Q142 108 156 114" fill="none" stroke="' + OUT + '" stroke-width="5" stroke-linecap="round"/><path d="M86 122 Q100 118 112 122" fill="none" stroke="' + OUT + '" stroke-width="5" stroke-linecap="round"/>'
     };
     const mouths = {
-      happy: '<path d="M82 140 Q100 162 118 140 Z" fill="#7A1F2B" stroke="#1B2340" stroke-width="3" stroke-linejoin="round"/><path d="M90 150 Q100 158 110 150 Q100 146 90 150Z" fill="#FF7E8E"/>',
-      cheer: '<path d="M78 138 Q100 172 122 138 Z" fill="#7A1F2B" stroke="#1B2340" stroke-width="3" stroke-linejoin="round"/><path d="M88 152 Q100 164 112 152 Q100 146 88 152Z" fill="#FF7E8E"/>',
-      sad: '<path d="M86 152 Q100 140 114 152" fill="none" stroke="#1B2340" stroke-width="4.500" stroke-linecap="round"/>',
-      think: '<path d="M90 146 Q101 141 112 148" fill="none" stroke="#1B2340" stroke-width="4.500" stroke-linecap="round"/>'
+      happy: '<path d="M99 166 Q120 172 141 166 Q138 190 120 190 Q102 190 99 166Z" fill="#6E1626" stroke="#17203F" stroke-width="3" stroke-linejoin="round"/><path d="M103 168 Q120 173 137 168 L136 173 Q120 177 104 173Z" fill="#fff"/><path d="M108 184 Q120 176 132 184 Q120 191 108 184Z" fill="#FF7E8E"/>',
+      cheer: '<path d="M95 162 Q120 170 145 162 Q142 196 120 196 Q98 196 95 162Z" fill="#6E1626" stroke="#17203F" stroke-width="3" stroke-linejoin="round"/><path d="M100 165 Q120 171 140 165 L139 171 Q120 176 101 171Z" fill="#fff"/><path d="M106 188 Q120 178 134 188 Q120 197 106 188Z" fill="#FF7E8E"/>',
+      sad: '<path d="M104 180 Q120 166 136 180" fill="none" stroke="#17203F" stroke-width="5" stroke-linecap="round"/>',
+      think: '<path d="M106 176 Q120 170 134 178" fill="none" stroke="#17203F" stroke-width="5" stroke-linecap="round"/>'
     };
-    const arm = 'fill="url(#sb-body)" stroke="#4A8517" stroke-width="3.500"';
-    const armL = up
-      ? '<g><rect x="18" y="96" width="44" height="26" rx="13" ' + arm + '/><rect x="18" y="62" width="26" height="58" rx="13" ' + arm + '/></g>'
-      : '<g><rect x="20" y="132" width="42" height="26" rx="13" ' + arm + '/><rect x="20" y="108" width="26" height="48" rx="13" ' + arm + '/></g>';
-    const armR = (up || mood === 'wave')
-      ? '<g class="sabi-wave"><rect x="138" y="96" width="44" height="26" rx="13" ' + arm + '/><rect x="156" y="60" width="26" height="60" rx="13" ' + arm + '/></g>'
-      : '<g><rect x="138" y="132" width="42" height="26" rx="13" ' + arm + '/><rect x="154" y="108" width="26" height="48" rx="13" ' + arm + '/></g>';
+    // an arm is one thick rounded stroke over a darker, slightly thicker one (the outline)
+    const arm = (d, cls) => '<g' + (cls ? ' class="' + cls + '"' : '') + ' fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="' + d + '" stroke="' + OUT + '" stroke-width="33"/><path d="' + d + '" stroke="url(#sb-body)" stroke-width="27"/><path d="' + d + '" stroke="#E4FA9A" stroke-width="5" opacity=".5" transform="translate(-6 -3)"/></g>';
+    const armL = arm(up ? 'M74 158 H46 Q34 158 34 146 V104' : 'M74 172 H48 Q36 172 36 160 V138');
+    const armR = arm(up || mood === 'wave' ? 'M166 156 H194 Q206 156 206 144 V98' : 'M166 172 H192 Q204 172 204 160 V138', up || mood === 'wave' ? 'sabi-wave' : '');
+    const spine = (x, y) => '<path d="M' + x + ' ' + y + ' l-5 -3 M' + x + ' ' + y + ' l5 -3 M' + x + ' ' + y + ' v6" stroke="#F4FFD6" stroke-width="2.200" stroke-linecap="round"/>';
     const glass = mood === 'think'
-      ? '<g transform="rotate(-16 170 110)"><rect x="166" y="112" width="8" height="30" rx="4" fill="#7A4A1E"/><circle cx="170" cy="94" r="19" fill="#CFEFFF" fill-opacity=".8" stroke="#FFC83D" stroke-width="6"/><path d="M160 88 Q165 80 174 82" stroke="#fff" stroke-width="3" fill="none" stroke-linecap="round"/></g>'
+      ? '<g transform="rotate(-14 206 118)"><rect x="201" y="122" width="10" height="34" rx="5" fill="#7A4A1E" stroke="#4A2A0C" stroke-width="2"/><circle cx="206" cy="100" r="22" fill="#D6F1FF" fill-opacity=".8" stroke="#FFC83D" stroke-width="7"/><circle cx="206" cy="100" r="22" fill="none" stroke="#B8780A" stroke-width="1.500"/><path d="M194 92 Q200 82 212 84" stroke="#fff" stroke-width="3.500" fill="none" stroke-linecap="round"/></g>'
       : '';
-    const sparks = up ? '<g fill="#FFC83D"><path d="M14 40 l3 8 8 3 -8 3 -3 8 -3 -8 -8 -3 8 -3z"/><path d="M186 32 l2.500 7 7 2.500 -7 2.500 -2.500 7 -2.500 -7 -7 -2.500 7 -2.500z"/><circle cx="8" cy="84" r="3"/><circle cx="194" cy="76" r="3"/></g>' : '';
-    return '<svg class="sabi sabi-' + mood + '" width="' + size + '" height="' + Math.round(size * 1.1) + '" viewBox="0 0 200 220" role="img" aria-label="סאבי הצבר">' + DEFS +
-      '<ellipse cx="100" cy="212" rx="56" ry="6" fill="#000" opacity=".25"/>' +
-      '<rect x="44" y="108" width="112" height="90" rx="28" fill="url(#sb-pack)" stroke="#5C3613" stroke-width="3.500"/>' +
+    const sparks = up ? '<g fill="#FFC83D"><path d="M18 52 l3.500 9 9 3.500 -9 3.500 -3.500 9 -3.500 -9 -9 -3.500 9 -3.500z"/><path d="M222 40 l3 8 8 3 -8 3 -3 8 -3 -8 -8 -3 8 -3z"/><circle cx="12" cy="104" r="3.500"/><circle cx="230" cy="92" r="3.500"/></g>' : '';
+    return '<svg class="sabi sabi-' + mood + '" width="' + size + '" height="' + Math.round(size * 1.083) + '" viewBox="0 0 240 260" role="img" aria-label="סאבי הצבר">' + DEFS +
+      '<ellipse cx="120" cy="248" rx="62" ry="8" fill="#000" opacity=".28"/>' +
+      /* backpack */
+      '<rect x="56" y="118" width="128" height="108" rx="34" fill="url(#sb-pack)" stroke="#4A2A0C" stroke-width="3"/>' +
       armL + armR +
-      '<rect x="52" y="60" width="96" height="150" rx="48" fill="url(#sb-body)" stroke="#4A8517" stroke-width="3.500"/>' +
-      '<g fill="none" stroke="#4A8517" stroke-width="2.500" opacity=".35" stroke-linecap="round"><path d="M74 168 Q70 190 76 204"/><path d="M100 172 V208"/><path d="M126 168 Q130 190 124 204"/></g>' +
-      '<g stroke="#F4FFD0" stroke-width="2.400" stroke-linecap="round" opacity=".9"><path d="M64 176 l-4 3M64 176 l-1 5"/><path d="M138 180 l4 3M138 180 l1 5"/><path d="M100 190 l-3 4M100 190 l3 4"/><path d="M86 200 l-3 3"/><path d="M116 198 l3 3"/></g>' +
-      '<path d="M66 84 Q52 130 60 186" fill="none" stroke="url(#sb-pack)" stroke-width="11" stroke-linecap="round"/><path d="M134 84 Q148 130 140 186" fill="none" stroke="url(#sb-pack)" stroke-width="11" stroke-linecap="round"/>' +
-      '<g transform="rotate(6 58 156)"><rect x="49" y="148" width="19" height="14" rx="2" fill="#fff" stroke="#2B5BF0" stroke-width="1"/><path d="M49 151 h19M49 159 h19" stroke="#2B5BF0" stroke-width="2"/><path d="M58.500 152.500 l2.600 4.500 h-5.200z M58.500 158.500 l-2.600 -4.500 h5.200z" fill="none" stroke="#2B5BF0" stroke-width=".9"/></g>' +
-      '<circle cx="66" cy="136" r="9" fill="#FF8FA3" opacity=".65"/><circle cx="134" cy="136" r="9" fill="#FF8FA3" opacity=".65"/>' +
+      /* body */
+      '<rect x="68" y="72" width="104" height="168" rx="52" fill="url(#sb-body)" stroke="' + OUT + '" stroke-width="3.500"/>' +
+      '<g clip-path="url(#sb-bodyclip)"><path d="M92 72 Q84 160 94 244 M120 72 V244 M148 72 Q156 160 146 244" fill="none" stroke="#3F7C12" stroke-width="2.500" opacity=".28"/>' +
+      '<path d="M80 96 Q72 160 82 228" fill="none" stroke="#F1FFC2" stroke-width="9" stroke-linecap="round" opacity=".42"/><rect x="68" y="72" width="104" height="168" fill="url(#sb-shade)"/>' +
+      '<path d="M66 96 Q120 116 174 96 V112 Q120 130 66 112Z" fill="#1E4A08" opacity=".3"/></g>' +
+      spine(88, 208) + spine(152, 212) + spine(120, 222) + spine(104, 228) + spine(138, 228) +
+      /* flag pin */
+      '<g transform="translate(4 14) rotate(-6 82 192)"><rect x="71" y="183" width="22" height="16" rx="2.500" fill="#fff" stroke="#1F47C9" stroke-width="1.200"/><path d="M71 186.500 h22 M71 195.500 h22" stroke="#1F47C9" stroke-width="2.200"/><path d="M82 188 l2.800 4.800 h-5.600z M82 194 l-2.800 -4.800 h5.600z" fill="none" stroke="#1F47C9" stroke-width="1"/></g>' +
+      /* face */
+      '<ellipse cx="90" cy="166" rx="10" ry="7" fill="#FF8FA3" opacity=".6"/><ellipse cx="150" cy="166" rx="10" ry="7" fill="#FF8FA3" opacity=".6"/>' +
       '<g class="sabi-eyes">' + eyes[key] + '</g>' + mouths[key] +
-      '<path d="M54 78 Q54 26 100 24 Q146 26 146 78 Z" fill="url(#sb-hat)" stroke="#6B3F16" stroke-width="3.500" stroke-linejoin="round"/>' +
-      '<g clip-path="url(#sb-hatclip)" stroke="#7A4A1E" stroke-width="1.800" opacity=".5"><path d="M66 20 V82M80 20 V82M94 20 V82M108 20 V82M122 20 V82M136 20 V82"/><path d="M48 40 H152M48 54 H152M48 68 H152"/></g>' +
-      '<path d="M58 76 Q28 78 22 96 Q50 94 80 80 Z" fill="#B98545" stroke="#6B3F16" stroke-width="3.500" stroke-linejoin="round"/>' +
-      '<path d="M142 76 Q172 78 178 96 Q150 94 120 80 Z" fill="#B98545" stroke="#6B3F16" stroke-width="3.500" stroke-linejoin="round"/>' +
-      '<path d="M54 78 H146" stroke="#6B3F16" stroke-width="4" stroke-linecap="round"/>' +
-      '<path d="M100 24 Q82 8 80 20 Q82 32 100 24 Q118 8 120 20 Q118 32 100 24Z" fill="#7A4A1E"/><circle cx="100" cy="24" r="5" fill="#5C3613"/>' +
+      /* deerstalker hat */
+      '<path d="M64 98 Q60 34 120 30 Q180 34 176 98 Q120 112 64 98Z" fill="url(#sb-hat)" stroke="#5A3410" stroke-width="3.500" stroke-linejoin="round"/>' +
+      '<g clip-path="url(#sb-hatclip)"><g stroke="#7A4A1E" stroke-width="1.600" opacity=".45"><path d="M76 24 V112 M90 24 V112 M104 24 V112 M136 24 V112 M150 24 V112 M164 24 V112"/><path d="M56 46 H184 M56 60 H184 M56 74 H184 M56 88 H184"/></g>' +
+      '<g stroke="#F7DDAE" stroke-width="1.200" opacity=".5"><path d="M83 24 V112 M97 24 V112 M143 24 V112 M157 24 V112"/><path d="M56 53 H184 M56 67 H184 M56 81 H184"/></g>' +
+      '<path d="M120 30 V112" stroke="#5A3410" stroke-width="2.500" opacity=".55"/><path d="M70 60 Q78 40 100 34" fill="none" stroke="#FFF1D2" stroke-width="6" stroke-linecap="round" opacity=".45"/></g>' +
+      '<path d="M70 92 Q42 88 32 110 Q36 118 50 114 Q78 106 104 102Z" fill="url(#sb-brim)" stroke="#5A3410" stroke-width="3.500" stroke-linejoin="round"/>' +
+      '<path d="M170 92 Q198 88 208 110 Q204 118 190 114 Q162 106 136 102Z" fill="url(#sb-brim)" stroke="#5A3410" stroke-width="3.500" stroke-linejoin="round"/>' +
+      '<path d="M65 93 Q120 108 175 93" fill="none" stroke="#5A3410" stroke-width="8" stroke-linecap="round"/><path d="M67 92 Q120 106 173 92" fill="none" stroke="#8E5D28" stroke-width="4" stroke-linecap="round"/>' +
+      '<g stroke="#4A2A0C" stroke-width="2.500" stroke-linejoin="round"><path d="M120 31 Q98 12 94 26 Q96 40 120 31Z" fill="#8E5D28"/><path d="M120 31 Q142 12 146 26 Q144 40 120 31Z" fill="#8E5D28"/><circle cx="120" cy="31" r="6" fill="#6B3F16"/></g>' +
       glass + sparks + '</svg>';
   };
 

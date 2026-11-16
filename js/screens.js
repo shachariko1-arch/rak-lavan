@@ -28,24 +28,31 @@
   S.onboarding = () => {
     if (O.step === -1) {
       return '<div class="welcome"><span class="welcome-plane" aria-hidden="true">✈️</span>' +
-        '<div class="welcome-top">' + Y.wordmark() + '<h1>אנגלית לישראלים, לחיים האמיתיים.</h1></div>' +
-        '<div class="welcome-art">' + Y.skyline() + Y.mascot('wave', 210) + '</div>' +
-        '<div class="welcome-cta"><button class="btn btn-gold btn-block btn-xl" data-act="ob-start">' + go('בואו נתחיל') + '</button>' +
-        '<button class="btn btn-ghost btn-block" data-act="ob-login">כבר יש לי חשבון</button></div></div>';
+        '<div class="welcome-top">' + Y.wordmark() + '<h1>אנגלית לישראלים,<br>לחיים האמיתיים.</h1>' +
+        '<ul class="welcome-points"><li>5 דקות ביום</li><li>שיחות עם AI</li><li>' + Y.totalLessons() + ' שיעורים</li></ul></div>' +
+        '<div class="welcome-art">' + Y.skyline() + Y.mascot('wave', 200) + '</div>' +
+        '<div class="welcome-cta"><button class="btn btn-gold btn-block btn-xl" data-act="ob-start">' + go('הרשמה בחינם') + '</button>' +
+        '<button class="btn btn-glass btn-block" data-act="ob-login">כבר יש לי חשבון</button></div></div>';
     }
     if (O.step === Q.length) {
       return '<div class="ob"><div class="ob-plan">' + Y.mascot('think', 150) + '<h2>בונה לך מסלול אישי...</h2>' +
         '<ul class="plan-list"><li>בודק את הרמה</li><li>בוחר נושאים שמתאימים למטרה</li><li>מסדר שיעורים ליעד היומי</li></ul></div></div>';
     }
     if (O.step > Q.length) {
-      const g = O.data.gender === 'f';
+      const login = !!O.login, g = O.data.gender === 'f';
+      const pw = '<label class="field"><span>סיסמה</span><span class="pw-wrap"><input id="ob-pass" type="password" dir="ltr" minlength="6" maxlength="64" autocomplete="' + (login ? 'current-password' : 'new-password') + '" placeholder="לפחות 6 תווים"><button type="button" class="pw-eye" data-act="pw-toggle" aria-label="הצגת הסיסמה">👁️</button></span></label>';
       return '<div class="ob">' + obHead(100) +
-        '<div class="ob-body"><div class="ob-title">' + Y.mascot('cheer', 96) + '<h2>' + (O.login ? 'טוב לראות אותך שוב!' : 'המסלול שלך מוכן!') + '</h2></div>' +
-        '<label class="field"><span>איך קוראים לך?</span><input id="ob-name" type="text" maxlength="24" autocomplete="given-name" placeholder="השם שלך" value="' + esc(O.data.name || '') + '"></label>' +
-        '<div id="gsi-slot"></div>' +
-        '<button class="btn btn-google btn-block" data-act="ob-google"><svg width="20" height="20" viewBox="0 0 48 48" aria-hidden="true" style="stroke:none"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.800 2.400 30.300 0 24 0 14.600 0 6.500 5.400 2.600 13.200l7.900 6.100C12.400 13.600 17.700 9.500 24 9.500z"/><path fill="#4285F4" d="M46.500 24.500c0-1.600-.1-3.100-.4-4.500H24v9h12.700c-.6 3-2.300 5.500-4.800 7.200l7.700 6c4.500-4.200 6.900-10.300 6.900-17.700z"/><path fill="#FBBC05" d="M10.500 28.700c-.5-1.500-.8-3.100-.8-4.700s.3-3.200.8-4.700l-7.900-6.100C1 16.500 0 20.100 0 24s1 7.500 2.600 10.800l7.900-6.100z"/><path fill="#34A853" d="M24 48c6.500 0 11.900-2.100 15.900-5.800l-7.700-6c-2.200 1.500-4.900 2.300-8.200 2.300-6.300 0-11.600-4.200-13.500-9.900l-7.900 6.100C6.500 42.600 14.600 48 24 48z"/></svg>המשך עם Google</button>' +
-        '<button class="btn btn-gold btn-block" data-act="ob-guest">' + go(g ? 'ממשיכה בלי חשבון' : 'ממשיך בלי חשבון') + '</button>' +
-        '<p class="fine">ההתקדמות נשמרת במכשיר הזה.</p></div></div>';
+        '<form class="ob-body auth" id="auth-form" novalidate><div class="ob-title">' + Y.mascot(login ? 'wave' : 'cheer', 92) + '<h2>' + (login ? 'טוב לראות אותך שוב!' : 'המסלול שלך מוכן!') + '</h2></div>' +
+        '<p class="auth-sub">' + (login ? 'התחברות לחשבון שלך' : 'יוצרים חשבון ושומרים את ההתקדמות') + '</p>' +
+        (login ? '' : '<label class="field"><span>שם פרטי</span><input id="ob-name" type="text" maxlength="24" autocomplete="given-name" placeholder="איך קוראים לך?" value="' + esc(O.data.name || '') + '"></label>') +
+        '<label class="field"><span>אימייל</span><input id="ob-email" type="email" dir="ltr" maxlength="80" autocomplete="email" placeholder="name@example.com"></label>' + pw +
+        (login ? '' : '<label class="check"><input id="ob-terms" type="checkbox"><span>קראתי ואני ' + (g ? 'מסכימה' : 'מסכים') + ' לתנאי השימוש ולמדיניות הפרטיות</span></label>') +
+        '<p class="auth-err" id="auth-err" role="alert" hidden></p>' +
+        '<button class="btn btn-gold btn-block btn-xl">' + go(login ? 'התחברות' : 'יצירת חשבון') + '</button>' +
+        '<div class="or"><span>או</span></div><div id="gsi-slot"></div>' +
+        '<button class="btn btn-google btn-block" type="button" data-act="ob-google"><svg width="20" height="20" viewBox="0 0 48 48" aria-hidden="true" style="stroke:none"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.800 2.400 30.300 0 24 0 14.600 0 6.500 5.400 2.600 13.200l7.900 6.100C12.400 13.600 17.700 9.500 24 9.500z"/><path fill="#4285F4" d="M46.500 24.500c0-1.600-.1-3.100-.4-4.500H24v9h12.700c-.6 3-2.300 5.500-4.800 7.200l7.700 6c4.500-4.200 6.900-10.300 6.900-17.700z"/><path fill="#FBBC05" d="M10.500 28.700c-.5-1.500-.8-3.100-.8-4.700s.3-3.200.8-4.700l-7.900-6.100C1 16.500 0 20.100 0 24s1 7.500 2.600 10.800l7.900-6.100z"/><path fill="#34A853" d="M24 48c6.500 0 11.900-2.100 15.900-5.800l-7.700-6c-2.200 1.500-4.900 2.300-8.200 2.300-6.300 0-11.600-4.200-13.500-9.900l-7.900 6.100C6.500 42.600 14.600 48 24 48z"/></svg>המשך עם Google</button>' +
+        (login ? '<button type="button" class="link-btn" data-act="ob-to-signup">אין לי חשבון עדיין</button>' : '<button type="button" class="link-btn" data-act="ob-guest">להמשיך בלי חשבון</button>') +
+        '<p class="fine">בגרסה הזו החשבון וההתקדמות נשמרים במכשיר הזה בלבד.</p></form></div>';
     }
     const q = Q[O.step], has = O.data[q.key] != null;
     return '<div class="ob">' + obHead(Math.round(((O.step + 1) / (Q.length + 1)) * 100)) +
@@ -53,7 +60,7 @@
       q.opts.map((o) => '<button class="ob-opt' + (O.data[q.key] === o[0] ? ' sel' : '') + '" data-act="ob-pick" data-v="' + o[0] + '"><span class="ob-em">' + o[1] + '</span><span class="ob-t"><b>' + o[2] + '</b><small>' + o[3] + '</small></span></button>').join('') +
       '</div></div><div class="ob-foot"><button class="btn btn-gold btn-block btn-xl" id="ob-next" data-act="ob-next"' + (has ? '' : ' disabled') + '>' + go('המשך') + '</button></div></div>';
   };
-  const obRender = () => { const app = Y.$('#app'); app.innerHTML = S.onboarding(); app.style.animation = 'none'; void app.offsetWidth; app.style.animation = ''; if (O.step > Q.length) setupGoogle(); };
+  const obRender = () => { const app = Y.$('#app'); app.innerHTML = S.onboarding(); app.style.animation = 'none'; void app.offsetWidth; app.style.animation = ''; if (O.step > Q.length) { setupGoogle(); const f = Y.$('#auth-form'); if (f) f.addEventListener('submit', (e) => { e.preventDefault(); authSubmit(); }); } };
   A['ob-start'] = () => { O.step = 0; Y.sfx('whoosh'); obRender(); };
   A['ob-login'] = () => { O.login = true; O.step = Q.length + 1; Y.sfx('whoosh'); obRender(); };
   A['ob-back'] = () => { O.step = O.login ? -1 : (O.step > Q.length ? Q.length - 1 : O.step - 1); O.login = false; Y.sfx('tap'); obRender(); };
@@ -72,16 +79,46 @@
   const obFinish = (extra) => {
     const name = (Y.$('#ob-name') ? Y.$('#ob-name').value : '').trim() || (extra && extra.name) || '';
     if (!name) { Y.toast('רק שם קטן וממשיכים'); const i = Y.$('#ob-name'); if (i) i.focus(); return false; }
+    Y.state.session = true;
     Object.assign(Y.state.user, O.data, extra || {}, { name: name });
     if (!Y.state.user.goal) Y.state.user.goal = 'general';
     Y.state.onboarded = true; Y.save();
     Y.sfx('win'); Y.go('home'); Y.confetti();
     return true;
   };
-  A['ob-guest'] = () => obFinish();
+  /* accounts live on this device: the password is stored only as a salted SHA-256 hash */
+  const hashPw = (salt, pw) => {
+    const txt = salt + ':' + pw;
+    if (window.crypto && crypto.subtle && window.TextEncoder) {
+      return crypto.subtle.digest('SHA-256', new TextEncoder().encode(txt)).then((b) => Array.from(new Uint8Array(b)).map((x) => x.toString(16).padStart(2, '0')).join(''));
+    }
+    let h = 5381; for (let i = 0; i < txt.length; i++) h = ((h << 5) + h + txt.charCodeAt(i)) | 0;
+    return Promise.resolve('w' + h);
+  };
+  const authErr = (msg, id) => { const e = Y.$('#auth-err'); e.textContent = msg; e.hidden = false; Y.sfx('bad'); const i = id && Y.$(id); if (i) i.focus(); };
+  function authSubmit() {
+    const login = !!O.login, email = Y.$('#ob-email').value.trim().toLowerCase(), pass = Y.$('#ob-pass').value;
+    if (!login && !Y.$('#ob-name').value.trim()) return authErr('חסר שם פרטי', '#ob-name');
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]{2,}$/.test(email)) return authErr('כתובת האימייל לא נראית תקינה', '#ob-email');
+    if (pass.length < 6) return authErr('הסיסמה צריכה לפחות 6 תווים', '#ob-pass');
+    if (!login && !Y.$('#ob-terms').checked) return authErr('צריך לאשר את תנאי השימוש כדי להמשיך');
+    const acc = Y.state.account;
+    if (login) {
+      if (!acc || acc.email !== email) return authErr('לא מצאנו במכשיר הזה חשבון עם האימייל הזה', '#ob-email');
+      return hashPw(acc.salt, pass).then((h) => {
+        if (h !== acc.hash) return authErr('הסיסמה לא נכונה', '#ob-pass');
+        Y.state.session = true; Y.save(); Y.sfx('win'); Y.go('home'); Y.toast('ברוך שובך, ' + (Y.state.user.name || '') + '!');
+      });
+    }
+    const salt = Math.random().toString(36).slice(2) + Date.now().toString(36);
+    hashPw(salt, pass).then((h) => { Y.state.account = { email: email, salt: salt, hash: h }; Y.state.session = true; obFinish(); });
+  }
+  A['pw-toggle'] = (el) => { const i = Y.$('#ob-pass'); i.type = i.type === 'password' ? 'text' : 'password'; el.textContent = i.type === 'password' ? '👁️' : '🙈'; };
+  A['ob-to-signup'] = () => { O.login = false; O.step = Y.state.onboarded ? Q.length + 1 : 0; Y.sfx('whoosh'); obRender(); };
+  A['ob-guest'] = () => { const n = Y.$('#ob-name'); if (n && !n.value.trim()) return authErr('רק שם פרטי וממשיכים', '#ob-name'); Y.state.session = true; obFinish(); };
   A['ob-google'] = () => {
     if (C.GOOGLE_CLIENT_ID) { Y.toast('בחרו חשבון בחלון של Google'); try { google.accounts.id.prompt(); } catch (e) { Y.toast('Google לא זמין כרגע'); } return; }
-    if (obFinish({ google: false })) Y.toast('גרסת הדגמה: החיבור ל-Google יופעל בהמשך.');
+    Y.toast('ההתחברות עם Google עדיין לא מחוברת. אפשר להירשם עם אימייל.');
   };
   function setupGoogle() {
     if (!C.GOOGLE_CLIENT_ID) return;
@@ -98,6 +135,19 @@
     if (window.google && google.accounts) return init();
     const s = document.createElement('script'); s.src = 'https://accounts.google.com/gsi/client'; s.async = true; s.onload = init; document.head.appendChild(s);
   }
+
+  /* ═════════ SPLASH ═════════ */
+  S.splash = () => '<div class="splash"><div class="splash-logo"><span class="splash-ring"></span><span class="splash-ring r2"></span><img src="assets/logo.jpg" alt="יאללה English" width="150" height="150"></div>' +
+    '<div class="splash-sabi">' + Y.mascot('wave', 96) + '</div><p class="splash-tag">אנגלית בכיף. בעברית.</p><div class="splash-bar"><i></i></div></div>';
+  Y.boot = () => {
+    Y.go('splash');
+    setTimeout(() => {
+      const st = Y.state;
+      if (st.onboarded && st.session !== false) return Y.go('home');
+      if (st.onboarded) { O = { step: Q.length + 1, data: {}, login: true }; Y.go('onboarding'); if (O.step > Q.length) { setupGoogle(); const f = Y.$('#auth-form'); if (f) f.addEventListener('submit', (e) => { e.preventDefault(); authSubmit(); }); } return; }
+      Y.go('onboarding');
+    }, 2100);
+  };
 
   /* ═════════ shared chrome ═════════ */
   const TABS = [['home', 'בית', 'home'], ['path', 'מסלול', 'path'], ['practice', 'חזרה', 'review'], ['profile', 'פרופיל', 'profile']];
@@ -254,7 +304,7 @@
     const week = [0, 1, 2, 3, 4, 5, 6].map((i) => { const d = Y.addDays(now, i - now.getDay()); return { l: days[i], xp: st.days[Y.dayKey(d)] || 0, today: i === now.getDay() }; });
     const max = Math.max(Y.dailyGoalXp(), Math.max.apply(null, week.map((w) => w.xp)));
     return page('profile',
-      '<section class="me">' + avatar(true) + '<div><h1>' + esc(u.name || 'אורח') + '</h1><p>' + (WHO[u.who] || 'לומדים אנגלית') + ' · מאז ' + esc(u.joined.split('-').reverse().join('.')) + '</p></div>' +
+      '<section class="me">' + avatar(true) + '<div><h1>' + esc(u.name || 'אורח') + '</h1><p>' + (st.account ? '<span dir="ltr">' + esc(st.account.email) + '</span><br>' : '') + (WHO[u.who] || 'לומדים אנגלית') + ' · מאז ' + esc(u.joined.split('-').reverse().join('.')) + '</p></div>' +
       '<button class="icon-btn" data-act="settings" aria-label="הגדרות">' + Y.ICON.gear + '</button></section>' +
       '<button class="mini-card is-gold" data-act="tab" data-tab="plus"><span class="mini-em">👑</span><span class="mini-txt"><b>' + (Y.isPlus() ? 'פרימיום פעיל' : 'יאללה פרימיום') + '</b><small>' + (Y.isPlus() ? 'ניהול המנוי' : 'כל השיעורים ב-' + C.PRICE_ILS + ' ₪ לחודש') + '</small></span><span class="chev">' + Y.ICON.back + '</span></button>' +
       '<div class="stats stats-4"><div class="stat"><b>🔥 ' + Y.liveStreak() + '</b><small>ימים ברצף</small></div><div class="stat"><b class="gold">⭐ ' + st.xp + '</b><small>סך הכול XP</small></div>' +
@@ -275,7 +325,8 @@
       '<div class="set-row"><span>פנייה</span>' + seg('gender', u.gender, [['m', 'זכר'], ['f', 'נקבה']]) + '</div>' +
       '<button class="btn btn-block" data-act="say" data-say="Hello, my friend">' + Y.ICON.speaker + 'בדיקת קול</button>' +
       '<button class="btn btn-gold btn-block" data-act="settings-done">סיום</button>' +
-      '<button class="btn btn-ghost btn-block danger" data-act="reset-ask">איפוס התקדמות ויציאה</button></div>';
+      '<button class="btn btn-ghost btn-block" data-act="logout">התנתקות</button>' +
+      '<button class="btn btn-ghost btn-block danger" data-act="reset-ask">מחיקת החשבון וההתקדמות</button></div>';
   };
   A['settings'] = () => Y.sheet(settingsHtml(), { nofocus: true });
   A['set'] = (el) => {
@@ -287,12 +338,13 @@
     if (k === 'rate' || k === 'tts') Y.speak('Hello, my friend');
   };
   A['settings-done'] = () => { Y.closeSheet(); Y.go('profile'); };
+  A['logout'] = () => { Y.state.session = false; Y.save(); Y.closeSheet(); Y.boot(); };
   A['reset-ask'] = () => Y.sheet('<div class="sheet-c">' + Y.mascot('sad', 110) + '<h3>למחוק את כל ההתקדמות?</h3><p>הרצף, הנקודות והמילון יימחקו מהמכשיר. אי אפשר לשחזר.</p><button class="btn btn-gold btn-block" data-act="sheet-close">ביטול</button><button class="btn btn-ghost btn-block danger" data-act="reset-yes">מחיקה ויציאה</button></div>');
   A['reset-yes'] = () => { Y.reset(); Y.closeSheet(); O = { step: -1, data: {} }; Y.go('onboarding'); };
 
   /* ═════════ router ═════════ */
   Y.go = (name) => {
-    if (name !== 'onboarding') Y.lastTab = name;
+    if (name !== 'onboarding' && name !== 'splash') Y.lastTab = name;
     const app = Y.$('#app');
     Y.$$('.confetti').forEach((c) => c.remove());
     Y.stopSpeech();
