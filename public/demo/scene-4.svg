@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 1500" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#7f8fb0"/><stop offset=".3" stop-color="#c8a9b4"/><stop offset=".5" stop-color="#f0bfa0"/><stop offset=".62" stop-color="#f8d7a6"/>
+    </linearGradient>
+    <linearGradient id="sea" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#d9a98a"/><stop offset=".18" stop-color="#7f8ea4"/><stop offset="1" stop-color="#27405e"/></linearGradient>
+    <radialGradient id="sun" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#fffaf0"/><stop offset=".35" stop-color="#ffe2b0" stop-opacity=".9"/><stop offset="1" stop-color="#ffc98a" stop-opacity="0"/></radialGradient>
+    <linearGradient id="stone" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f4ead9"/><stop offset="1" stop-color="#bfa98b"/></linearGradient>
+    <filter id="b" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="20"/></filter>
+    <filter id="s" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="4"/></filter>
+    <filter id="grain"><feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2" seed="21"/><feColorMatrix values="0 0 0 0 .5  0 0 0 0 .46  0 0 0 0 .44  0 0 0 .16 0"/></filter>
+  </defs>
+  <rect width="1200" height="950" fill="url(#sky)"/>
+  <circle cx="520" cy="860" r="430" fill="url(#sun)"/>
+  <g filter="url(#b)" opacity=".55"><ellipse cx="880" cy="330" rx="360" ry="34" fill="#f6d5c4"/><ellipse cx="250" cy="470" rx="320" ry="28" fill="#f9dcc0"/><ellipse cx="760" cy="610" rx="300" ry="22" fill="#ffe6c2"/></g>
+  <circle cx="520" cy="870" r="70" fill="#fffbf0" filter="url(#s)"/>
+  <rect y="900" width="1200" height="600" fill="url(#sea)"/>
+  <!-- sun path on the water -->
+  <g fill="#ffe9c4">
+    <rect x="470" y="914" width="100" height="5" rx="2.5" opacity=".9"/><rect x="440" y="940" width="160" height="6" rx="3" opacity=".8"/><rect x="460" y="972" width="120" height="6" rx="3" opacity=".7"/>
+    <rect x="410" y="1008" width="220" height="7" rx="3.5" opacity=".6"/><rect x="450" y="1050" width="140" height="7" rx="3.5" opacity=".5"/><rect x="390" y="1098" width="260" height="8" rx="4" opacity=".4"/>
+    <rect x="440" y="1150" width="170" height="8" rx="4" opacity=".3"/>
+  </g>
+  <!-- far headland -->
+  <path d="M700 900 C800 850 900 870 1000 840 C1090 814 1150 850 1200 836 V904 H700Z" fill="#5b607c" opacity=".7"/>
+  <!-- cypress trees -->
+  <g fill="#1f2a22">
+    <path d="M120 1260 C70 1000 96 700 150 520 C204 700 230 1000 180 1260Z"/>
+    <path d="M262 1260 C226 1060 244 860 286 720 C328 860 346 1060 310 1260Z" opacity=".92"/>
+    <path d="M1040 1260 C1000 1040 1018 800 1066 640 C1114 800 1132 1040 1092 1260Z" opacity=".95"/>
+  </g>
+  <!-- terrace -->
+  <rect y="1236" width="1200" height="34" fill="url(#stone)"/>
+  <g fill="url(#stone)">
+    <path d="M60 1270 h44 c0 60 -12 120 -12 170 h-20 c0 -50 -12 -110 -12 -170Z"/><path d="M220 1270 h44 c0 60 -12 120 -12 170 h-20 c0 -50 -12 -110 -12 -170Z"/>
+    <path d="M380 1270 h44 c0 60 -12 120 -12 170 h-20 c0 -50 -12 -110 -12 -170Z"/><path d="M540 1270 h44 c0 60 -12 120 -12 170 h-20 c0 -50 -12 -110 -12 -170Z"/>
+    <path d="M700 1270 h44 c0 60 -12 120 -12 170 h-20 c0 -50 -12 -110 -12 -170Z"/><path d="M860 1270 h44 c0 60 -12 120 -12 170 h-20 c0 -50 -12 -110 -12 -170Z"/>
+    <path d="M1020 1270 h44 c0 60 -12 120 -12 170 h-20 c0 -50 -12 -110 -12 -170Z"/><path d="M1160 1270 h44 c0 60 -12 120 -12 170 h-20 c0 -50 -12 -110 -12 -170Z"/>
+  </g>
+  <rect y="1440" width="1200" height="60" fill="#cbb597"/>
+  <rect width="1200" height="1500" filter="url(#grain)" opacity=".7"/>
+</svg>

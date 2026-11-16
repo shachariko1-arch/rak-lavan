@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 1500" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1c1410"/><stop offset=".5" stop-color="#3a2a1e"/><stop offset="1" stop-color="#1a120d"/>
+    </linearGradient>
+    <radialGradient id="glow" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#ffd58a" stop-opacity=".95"/><stop offset=".5" stop-color="#f2a94e" stop-opacity=".35"/><stop offset="1" stop-color="#f2a94e" stop-opacity="0"/></radialGradient>
+    <linearGradient id="cloth" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f3e6d2"/><stop offset="1" stop-color="#a98d6c"/></linearGradient>
+    <linearGradient id="glass" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#fff" stop-opacity=".05"/><stop offset=".5" stop-color="#ffe9c2" stop-opacity=".5"/><stop offset="1" stop-color="#fff" stop-opacity=".05"/></linearGradient>
+    <filter id="b1" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="16"/></filter>
+    <filter id="b2" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="5"/></filter>
+    <filter id="b3" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="30"/></filter>
+    <filter id="grain"><feTurbulence type="fractalNoise" baseFrequency=".85" numOctaves="2" seed="11"/><feColorMatrix values="0 0 0 0 .6  0 0 0 0 .5  0 0 0 0 .4  0 0 0 .2 0"/></filter>
+  </defs>
+  <rect width="1200" height="1500" fill="url(#bg)"/>
+  <!-- festoon lights, out of focus -->
+  <g filter="url(#b1)">
+    <g fill="#ffcf85">
+      <circle cx="80" cy="250" r="44" opacity=".55"/><circle cx="240" cy="330" r="52" opacity=".6"/><circle cx="420" cy="380" r="46" opacity=".5"/><circle cx="610" cy="394" r="56" opacity=".62"/>
+      <circle cx="800" cy="372" r="48" opacity=".52"/><circle cx="980" cy="318" r="54" opacity=".6"/><circle cx="1130" cy="240" r="42" opacity=".5"/>
+      <circle cx="160" cy="120" r="34" opacity=".4"/><circle cx="380" cy="176" r="38" opacity=".42"/><circle cx="640" cy="196" r="40" opacity=".45"/><circle cx="900" cy="170" r="36" opacity=".42"/><circle cx="1080" cy="96" r="30" opacity=".36"/>
+    </g>
+    <g fill="#fff1cf"><circle cx="330" cy="560" r="26" opacity=".35"/><circle cx="870" cy="590" r="30" opacity=".32"/><circle cx="1040" cy="520" r="20" opacity=".3"/><circle cx="150" cy="610" r="22" opacity=".28"/></g>
+  </g>
+  <!-- long table receding -->
+  <path d="M-80 1500 L360 900 H840 L1280 1500 Z" fill="url(#cloth)" opacity=".92"/>
+  <path d="M360 900 H840" stroke="#fff6e6" stroke-width="3" opacity=".6"/>
+  <ellipse cx="600" cy="1010" rx="330" ry="150" fill="url(#glow)" opacity=".5" filter="url(#b3)"/>
+  <!-- candles -->
+  <g>
+    <g transform="translate(600 880)"><rect x="-9" y="0" width="18" height="130" rx="4" fill="#f6ead7"/><ellipse cx="0" cy="-26" rx="70" ry="70" fill="url(#glow)"/><path d="M0 -44 C12 -24 10 -8 0 -2 C-10 -8 -12 -24 0 -44Z" fill="#fff3d0"/></g>
+    <g transform="translate(470 960) scale(1.25)"><rect x="-9" y="0" width="18" height="150" rx="4" fill="#f6ead7"/><ellipse cx="0" cy="-26" rx="70" ry="70" fill="url(#glow)"/><path d="M0 -44 C12 -24 10 -8 0 -2 C-10 -8 -12 -24 0 -44Z" fill="#fff3d0"/></g>
+    <g transform="translate(736 980) scale(1.3)"><rect x="-9" y="0" width="18" height="110" rx="4" fill="#f6ead7"/><ellipse cx="0" cy="-26" rx="70" ry="70" fill="url(#glow)"/><path d="M0 -44 C12 -24 10 -8 0 -2 C-10 -8 -12 -24 0 -44Z" fill="#fff3d0"/></g>
+    <g transform="translate(330 1130) scale(1.7)" filter="url(#b2)"><rect x="-9" y="0" width="18" height="170" rx="4" fill="#f6ead7"/><ellipse cx="0" cy="-26" rx="70" ry="70" fill="url(#glow)"/><path d="M0 -44 C12 -24 10 -8 0 -2 C-10 -8 -12 -24 0 -44Z" fill="#fff3d0"/></g>
+    <g transform="translate(890 1160) scale(1.8)" filter="url(#b2)"><rect x="-9" y="0" width="18" height="140" rx="4" fill="#f6ead7"/><ellipse cx="0" cy="-26" rx="70" ry="70" fill="url(#glow)"/><path d="M0 -44 C12 -24 10 -8 0 -2 C-10 -8 -12 -24 0 -44Z" fill="#fff3d0"/></g>
+  </g>
+  <!-- coupe glasses -->
+  <g stroke="#ffe9c2" stroke-width="3" fill="url(#glass)" opacity=".85">
+    <path d="M150 1150 Q150 1250 222 1262 Q294 1250 294 1150 Z"/><path d="M222 1262 V1400 M176 1404 H268" fill="none"/>
+    <path d="M950 1190 Q950 1300 1030 1312 Q1110 1300 1110 1190 Z"/><path d="M1030 1312 V1470 M980 1474 H1080" fill="none"/>
+  </g>
+  <!-- greenery runner -->
+  <g fill="#52603f" opacity=".85">
+    <ellipse cx="560" cy="1060" rx="46" ry="13" transform="rotate(-18 560 1060)"/><ellipse cx="640" cy="1080" rx="50" ry="14" transform="rotate(14 640 1080)"/>
+    <ellipse cx="520" cy="1180" rx="60" ry="17" transform="rotate(-26 520 1180)"/><ellipse cx="690" cy="1210" rx="64" ry="18" transform="rotate(22 690 1210)"/>
+    <ellipse cx="600" cy="1330" rx="80" ry="22" transform="rotate(-8 600 1330)"/>
+  </g>
+  <g fill="#e9d2b8"><circle cx="596" cy="1120" r="20"/><circle cx="560" cy="1260" r="26"/><circle cx="652" cy="1290" r="22"/></g>
+  <rect width="1200" height="1500" filter="url(#grain)" opacity=".8"/>
+</svg>
