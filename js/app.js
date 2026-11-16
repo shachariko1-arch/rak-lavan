@@ -2,7 +2,7 @@
 (function () {
   const Y = window.Y;
   Y.load();
-  Y.applyTheme();
+  ['pointerdown', 'touchstart', 'keydown'].forEach((ev) => document.addEventListener(ev, Y.unlockAudio, { capture: true, passive: true }));
 
   document.addEventListener('click', (e) => {
     const el = e.target.closest('[data-act]');

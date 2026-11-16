@@ -59,14 +59,15 @@
     const W = L.w.map(Y.parseW), S = L.s.map(Y.parseS), D = L.d.map(Y.parseD);
     const unitS = [].concat.apply([], unit.lessons.map((l) => l.s.map(Y.parseS)));
     const unitB = [].concat.apply([], unit.lessons.map((l) => l.d.map(Y.parseD).filter((d) => d.who === 'b')));
-    const tts = Y.canSpeak() && Y.state.settings.tts;
+    const tts = Y.state.settings.tts;
     const steps = [];
     steps.push({ type: 'scene', unit: unit, lesson: L, dialog: D });
-    steps.push({ type: 'learn', words: W.slice(0, 3) });
+    const card = (i) => ({ type: 'learn', word: W[i], n: i + 1, of: W.length, example: S.concat(D).find((s) => new RegExp('\\b' + W[i].en.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\b', 'i').test(s.en)) });
+    steps.push(card(0), card(1), card(2));
     steps.push(X.pick(W[0], W));
     steps.push(X.mcWord(W[1], W));
     steps.push(X.pick(W[2], W));
-    steps.push({ type: 'learn', words: W.slice(3, 6) });
+    steps.push(card(3), card(4), card(5));
     steps.push(X.pick(W[3], W));
     steps.push(tts ? X.hearWord(W[4], W) : X.mcWord(W[4], W));
     steps.push(X.match(W));
@@ -92,7 +93,7 @@
       Y.COURSE[0].lessons[0].w.forEach((w) => allW.push(Y.parseW(w)));
       Y.COURSE[0].lessons[0].s.forEach((s) => allS.push(Y.parseS(s)));
     }
-    const tts = Y.canSpeak() && Y.state.settings.tts;
+    const tts = Y.state.settings.tts;
     let steps = [];
     if (mode === 'mistakes') {
       Y.state.mistakes.slice(0, 10).forEach((m) => {
@@ -121,9 +122,14 @@
     if (!session.steps.length) { Y.toast('אין כאן עדיין מה לתרגל'); return; }
     if (session.mode === 'lesson' && Y.hearts() <= 0) { Y.noHearts(); return; }
     P = { s: session, q: session.steps.slice(), i: 0, total: session.steps.length, done: 0, mistakes: 0, graded: 0, right: 0, t0: Date.now(), cur: null, sel: null, checked: false };
-    Y.closeSheet();
-    renderShell();
-    next(true);
+    Y.closeSheet(); Y.sfx('whoosh');
+    const begin = () => { if (!P) return; renderShell(); next(true); };
+    if (session.mode === 'lesson') {
+      Y.$('#app').className = 'app app-lesson';
+      Y.$('#app').innerHTML = '<div class="loading">' + Y.mascot('think', 120) + '<p>מכין את השיעור...</p></div>';
+      const mine = P;
+      Promise.race([Promise.all([Y.loadPack(session.unit.id), Y.loadPack('words')]), new Promise((r) => setTimeout(r, 4000))]).then(() => { if (P === mine) begin(); });
+    } else { Y.loadPack('words'); begin(); }
   };
 
   const heartsHtml = () => Y.isPlus() ? '<span class="lh-hearts">❤️ <b>∞</b></span>' : '<span class="lh-hearts">❤️ <b>' + Y.hearts() + '</b></span>';
@@ -163,7 +169,7 @@
       h += '<div class="hear">' + Y.speakBtn(ex.audio, true) +
         '<button class="spk spk-slow" data-act="say" data-slow="1" data-say="' + esc(ex.audio) + '" aria-label="השמע לאט">🐢</button></div>';
     } else if (ex.prompt) {
-      h += '<div class="ex-prompt-row">' + Y.mascot('think', 74) + '<div class="bubble ex-prompt"' + (ex.promptLtr ? ' dir="ltr"' : '') + '>' +
+      h += '<div class="ex-prompt-row">' + Y.mascot('think', 80) + '<div class="bubble ex-prompt"' + (ex.promptLtr ? ' dir="ltr"' : '') + '>' +
         (ex.audio ? Y.speakBtn(ex.audio) : '') + '<span>' + esc(ex.prompt) + '</span>' + (ex.sub ? '<small dir="rtl">' + esc(ex.sub) + '</small>' : '') + '</div></div>';
     }
     return h;
@@ -173,33 +179,34 @@
     scene: (ex, body) => {
       const L = ex.lesson;
       body.innerHTML = '<div class="scene-step"><p class="eyebrow">' + esc(ex.unit.title) + '</p><h2 class="ex-title">' + esc(L.t) + '</h2>' +
-        Y.scene(ex.unit.scene, L.who, L.e) + '<div class="dialog" id="dialog"></div></div>';
+        Y.scene(ex.unit.scene, L.who, L.e) + '<p class="scene-note">אנחנו ' + (Y.PLACES[ex.unit.scene] || 'בעיר') + '. הקשיבו לשיחה, ואז מתרגלים.</p><div class="dialog" id="dialog"></div></div>';
       P.dl = 0;
       foot(mainBtn('המשך', 'scene-next'));
-      showLine(ex);
+      setTimeout(() => { if (P && P.cur === ex) showLine(ex); }, 500);
     },
     learn: (ex, body) => {
-      body.innerHTML = '<h2 class="ex-title">מילים חדשות</h2><p class="ex-hint">לחצו על מילה כדי לשמוע אותה</p><div class="learn-list">' +
-        ex.words.map((w, i) => '<button class="learn-card" style="--d:' + i * 90 + 'ms" data-act="say" data-say="' + esc(w.en) + '">' +
-          '<span class="learn-em">' + w.em + '</span><span class="learn-txt"><b dir="ltr">' + esc(w.en) + '</b><span>' + esc(w.he) + '</span></span>' +
-          '<span class="spk-mini">' + Y.ICON.speaker + '</span></button>').join('') + '</div>';
-      ex.words.forEach((w) => Y.noteWord(w, false));
-      foot(mainBtn('הבנתי, ממשיכים', 'ex-continue'));
-      setTimeout(() => Y.speak(ex.words[0].en), 350);
+      const w = ex.word, e = ex.example;
+      body.innerHTML = '<h2 class="ex-title">מילה חדשה</h2>' +
+        '<button class="word-card" data-act="say" data-say="' + esc(w.en) + '"><span class="word-count">' + ex.n + '/' + ex.of + '</span><span class="word-em">' + w.em + '</span>' +
+        '<span class="word-en" dir="ltr">' + esc(w.en) + '<span class="spk">' + Y.ICON.speaker + '</span></span><span class="word-he">' + esc(w.he) + '</span></button>' +
+        (e ? '<p class="ex-label">דוגמה:</p><button class="ex-line" data-act="say" data-say="' + esc(e.en) + '"><span class="spk">' + Y.ICON.speaker + '</span><span>' + esc(e.en) + '<small>' + esc(e.he) + '</small></span></button>' : '');
+      Y.noteWord(w, false);
+      foot(mainBtn('הבא' + Y.ICON.arrow, 'ex-continue'));
+      setTimeout(() => { if (P && P.cur === ex) Y.speak(w.en); }, 450);
     },
     choice: (ex, body) => {
       body.innerHTML = promptHtml(ex) + '<div class="opts opts-' + ex.layout + '" role="radiogroup">' +
         ex.options.map((o, i) => '<button class="opt" role="radio" aria-checked="false" data-act="opt" data-i="' + i + '">' +
           (o.emoji ? '<span class="opt-em">' + o.emoji + '</span>' : '') + '<span class="opt-lbl"' + (o.ltr ? ' dir="ltr"' : '') + '>' + esc(o.label) + '</span></button>').join('') + '</div>';
       foot(skipLink(ex) + mainBtn('בדיקה', 'ex-check', true));
-      if (ex.audio) setTimeout(() => Y.speak(ex.audio), 350);
+      if (ex.audio) setTimeout(() => { if (P && P.cur === ex) Y.speak(ex.audio); }, 450);
     },
     build: (ex, body) => {
       P.sel = [];
       body.innerHTML = promptHtml(ex) + '<div class="build-line" id="bline" dir="ltr" aria-label="התשובה שלך"></div>' +
         '<div class="tiles" id="tiles" dir="ltr">' + ex.tiles.map((t, i) => '<button class="tile" data-act="tile" data-i="' + i + '">' + esc(t) + '</button>').join('') + '</div>';
       foot(skipLink(ex) + mainBtn('בדיקה', 'ex-check', true));
-      if (ex.audio) setTimeout(() => Y.speak(ex.audio), 350);
+      if (ex.audio) setTimeout(() => { if (P && P.cur === ex) Y.speak(ex.audio); }, 450);
     },
     match: (ex, body) => {
       const left = Y.shuffle(ex.pairs), right = Y.shuffle(ex.pairs);
@@ -218,11 +225,12 @@
       inp.addEventListener('keydown', (e) => { if (e.key === 'Enter' && inp.value.trim()) Y.actions[P.checked ? 'ex-continue' : 'ex-check'](); });
     },
     speak: (ex, body) => {
-      body.innerHTML = '<h2 class="ex-title">' + ex.title + '</h2><div class="ex-prompt-row">' + Y.mascot('happy', 74) +
-        '<div class="bubble ex-prompt" dir="ltr">' + Y.speakBtn(ex.prompt) + '<span>' + esc(ex.prompt) + '</span><small dir="rtl">' + esc(ex.sub) + '</small></div></div>' +
-        '<button class="mic" id="micbtn" data-act="mic">' + Y.ICON.mic + '<span>לחצו ודברו</span></button><p class="ex-hint" id="michint">נשמע אתכם ונבדוק את ההגייה</p>';
+      body.innerHTML = '<h2 class="ex-title">בוא נדבר! 🎙️</h2><p class="ex-hint">' + esc(ex.sub) + '</p><div class="speak-box">' +
+        '<div class="mic-row"><span class="wave"><i></i><i></i><i></i><i></i><i></i></span><button class="mic" id="micbtn" data-act="mic" aria-label="לחצו ודברו">' + Y.ICON.mic + '</button><span class="wave"><i></i><i></i><i></i><i></i><i></i></span></div>' +
+        '<div class="say-line" dir="ltr">' + Y.speakBtn(ex.prompt) + '<span>' + esc(ex.prompt) + '</span></div>' +
+        '<p class="ex-hint" id="michint">לחצו על המיקרופון ואמרו את המשפט</p>' + Y.mascot('happy', 110) + '</div>';
       foot('<button class="link-btn" data-act="ex-skip">אי אפשר לדבר עכשיו</button>');
-      setTimeout(() => Y.speak(ex.prompt), 350);
+      setTimeout(() => { if (P && P.cur === ex) Y.speak(ex.prompt); }, 450);
     }
   };
   const skipLink = (ex) => ex.audioOnly ? '<button class="link-btn" data-act="ex-skip">אי אפשר להקשיב עכשיו</button>' : '';
@@ -254,13 +262,13 @@
       else Y.noteMistake({ kind: ex.kind, en: ex.item.en, he: ex.item.he, em: ex.item.em || '' });
     }
     if (ok) {
-      Y.sfx('ok');
+      Y.sfx('ok'); Y.confetti(true);
       if (ex.say && !opts.quiet) setTimeout(() => Y.speak(ex.say), 250);
       foot('<div class="fb"><div class="fb-ico">' + Y.ICON.check + '</div><div class="fb-txt"><b>' + (opts.title || Y.praise()) + '</b>' + (opts.note ? '<span>' + opts.note + '</span>' : '') + '</div></div>' +
         mainBtn('המשך', 'ex-continue', false, 'btn-ok'), 'is-ok');
     } else {
       Y.sfx('bad'); P.mistakes++;
-      if (P.s.mode === 'lesson') { Y.loseHeart(); const h = Y.$('.lh-hearts'); if (h) { h.outerHTML = heartsHtml(); const n = Y.$('.lh-hearts'); n.classList.add('hit'); } }
+      if (P.s.mode === 'lesson') { if (!Y.isPlus()) setTimeout(() => Y.sfx('heart'), 260); Y.loseHeart(); const h = Y.$('.lh-hearts'); if (h) { h.outerHTML = heartsHtml(); const n = Y.$('.lh-hearts'); n.classList.add('hit'); } }
       P.q.push(Object.assign({}, ex, { retry: true })); // come back to it at the end
       foot('<div class="fb"><div class="fb-ico">' + Y.ICON.close + '</div><div class="fb-txt"><b>' + Y.comfort() + '</b><span>התשובה הנכונה: <em dir="ltr">' + esc(opts.answer || '') + '</em></span></div></div>' +
         mainBtn('הבנתי', 'ex-continue', false, 'btn-bad'), 'is-bad');
@@ -275,6 +283,7 @@
   A['say'] = (el) => { Y.speak(el.dataset.say, !!el.dataset.slow); el.classList.remove('pop'); void el.offsetWidth; el.classList.add('pop'); };
   A['scene-next'] = () => {
     const ex = P.cur;
+    if (!Y.$('#dialog .dline')) { showLine(ex); return; }
     if (P.dl < ex.dialog.length - 1) { P.dl++; Y.sfx('tap'); showLine(ex); }
     else { P.done++; next(); }
   };
@@ -393,14 +402,14 @@
       '<button class="btn btn-primary btn-block" data-act="sheet-close">' + Y.g('נשאר ללמוד', 'נשארת ללמוד') + '</button>' +
       '<button class="btn btn-ghost btn-block" data-act="lesson-leave">יציאה</button></div>');
   };
-  A['lesson-leave'] = () => { stopRec(); try { speechSynthesis.cancel(); } catch (e) { /* ignore */ } P = null; Y.closeSheet(); Y.go(Y.lastTab || 'home'); };
+  A['lesson-leave'] = () => { stopRec(); Y.stopSpeech(); P = null; Y.closeSheet(); Y.go(Y.lastTab || 'home'); };
   A['sheet-close'] = () => Y.closeSheet();
 
   /* out of hearts */
   Y.noHearts = (mid) => {
     Y.sheet('<div class="sheet-c">' + Y.mascot('sad', 96) + '<h3>נגמרו הלבבות</h3><p>לב חדש יתמלא בעוד ' + Y.nextHeartMin() + ' דקות. אפשר גם להמשיך כבר עכשיו:</p>' +
-      '<button class="btn btn-gold btn-block" data-act="go-plus-from-sheet">👑 לבבות ללא הגבלה עם פלוס</button>' +
-      '<button class="btn btn-primary btn-block" data-act="practice-heart">תרגול קצר ומקבלים לב</button>' +
+      '<button class="btn btn-gold btn-block" data-act="go-plus-from-sheet">👑 לבבות ללא הגבלה עם פרימיום</button>' +
+      '<button class="btn btn-block" data-act="practice-heart">תרגול קצר ומקבלים לב</button>' +
       (Y.state.gems >= 30 ? '<button class="btn btn-ghost btn-block" data-act="refill">מילוי לבבות תמורת 30 💎</button>' : '') +
       '<button class="btn btn-ghost btn-block" data-act="' + (mid ? 'lesson-leave' : 'sheet-close') + '">' + (mid ? 'חזרה למסך הבית' : 'סגירה') + '</button></div>', { sticky: !!mid });
   };
@@ -436,18 +445,20 @@
     const tipBox = s.tip ? '<div class="tip"><b>הטיפ של סאבי</b><p>' + esc(s.tip) + '</p></div>' : '';
     Y.$('#app').className = 'app app-done';
     Y.$('#app').innerHTML = '<div class="done">' +
-      '<div class="done-top">' + Y.mascot('cheer', 150) + '<h1>' + (perfect ? 'שיעור מושלם!' : Y.g('סיימת, כל הכבוד!', 'סיימת, כל הכבוד!')) + '</h1>' +
+      '<div class="done-top">' + Y.mascot('cheer', 170) + '<h1>' + (perfect ? 'שיעור מושלם!' : Y.g('סיימת, כל הכבוד!', 'סיימת, כל הכבוד!')) + '</h1>' +
       '<p class="done-sub">' + esc(s.title) + '</p></div>' +
       '<div class="done-stats"><div class="stat stat-gold"><small>נקודות</small><b dir="ltr">+' + xp + ' XP</b></div>' +
-      '<div class="stat stat-ok"><small>דיוק</small><b>' + acc + '%</b></div>' +
-      '<div class="stat stat-blue"><small>זמן</small><b>' + Math.floor(secs / 60) + ':' + String(secs % 60).padStart(2, '0') + '</b></div></div>' +
+      '<div class="stat"><b>' + acc + '%</b><small>דיוק</small></div>' +
+      '<div class="stat"><b>' + Math.floor(secs / 60) + ':' + String(secs % 60).padStart(2, '0') + '</b><small>זמן</small></div></div>' +
       (grew ? '<div class="streak-card"><span class="streak-fire">🔥</span><div><b>' + st.streak + (st.streak === 1 ? ' יום ברצף' : ' ימים ברצף') + '</b><span>' + (st.streak === 1 ? 'רצף חדש יצא לדרך. נתראה מחר?' : Y.g('אתה על זה. לא שוברים את הרצף!', 'את על זה. לא שוברים את הרצף!')) + '</span></div></div>' : '') +
       (gems ? '<p class="done-gems">קיבלת ' + gems + ' 💎' + (s.mode !== 'lesson' ? '' : '') + '</p>' : '') +
       (s.mode !== 'lesson' && !Y.isPlus() ? '<p class="done-gems">קיבלת לב אחד ❤️</p>' : '') +
       achs.map((a) => '<div class="ach-pop"><span>' + a.e + '</span><div><small>הישג חדש</small><b>' + a.t + '</b></div></div>').join('') +
       tipBox +
-      '<div class="done-foot"><button class="btn btn-primary btn-block" data-act="done-home">המשך</button></div></div>';
-    setTimeout(Y.confetti, 150);
+      '<div class="done-foot"><button class="btn btn-gold btn-block btn-xl" data-act="done-home">המשך' + Y.ICON.arrow + '</button></div></div>';
+    setTimeout(() => { Y.confetti(); Y.countUp(Y.$('#xpnum'), xp, 900); }, 150);
+    if (grew) setTimeout(() => Y.sfx('streak'), 900);
+    if (gems) setTimeout(() => Y.sfx('coin'), 1300);
   }
-  A['done-home'] = () => Y.go(Y.lastTab === 'practice' ? 'practice' : 'home');
+  A['done-home'] = () => { Y.sfx('whoosh'); Y.go(Y.lastTab === 'practice' ? 'practice' : Y.lastTab === 'path' ? 'path' : 'home'); };
 })();
