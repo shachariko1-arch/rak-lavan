@@ -235,49 +235,90 @@ interface MenuProps {
 
 /** Small dropdown menu. Closes on outside click, Escape, and when its page is hidden. */
 export function Menu({ trigger, children, align = "end", className }: MenuProps) {
+  const { isRtl } = useI18n();
   const [open, setOpen] = useState(false);
+  const [box, setBox] = useState<{ top: number; left?: number; right?: number; up: boolean } | null>(null);
   const rootRef = useRef<HTMLDivElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
   const close = useCallback(() => setOpen(false), []);
 
   useLayoutEffect(() => () => setOpen(false), []);
 
+  // The menu is portalled and fixed, so scroll containers (tables) never clip it.
+  useLayoutEffect(() => {
+    if (!open || !rootRef.current) return;
+    const rect = rootRef.current.getBoundingClientRect();
+    const up = rect.bottom + 260 > window.innerHeight && rect.top > 260;
+    const toRight = (align === "end") !== isRtl;
+    setBox({
+      top: up ? rect.top - 8 : rect.bottom + 8,
+      up,
+      ...(toRight ? { right: Math.max(8, window.innerWidth - rect.right) } : { left: Math.max(8, rect.left) }),
+    });
+  }, [open, align, isRtl]);
+
   useEffect(() => {
     if (!open) return;
     const onPointer = (event: PointerEvent) => {
-      if (!rootRef.current?.contains(event.target as Node)) setOpen(false);
+      const target = event.target as Node;
+      if (!rootRef.current?.contains(target) && !menuRef.current?.contains(target)) setOpen(false);
     };
     const onKey = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setOpen(false);
+      if (event.key === "Escape") {
+        setOpen(false);
+        rootRef.current?.querySelector<HTMLElement>("button")?.focus();
+      }
+    };
+    const onScroll = (event: Event) => {
+      if (!menuRef.current?.contains(event.target as Node)) setOpen(false);
     };
     document.addEventListener("pointerdown", onPointer);
     document.addEventListener("keydown", onKey);
+    window.addEventListener("scroll", onScroll, true);
+    window.addEventListener("resize", close);
     return () => {
       document.removeEventListener("pointerdown", onPointer);
       document.removeEventListener("keydown", onKey);
+      window.removeEventListener("scroll", onScroll, true);
+      window.removeEventListener("resize", close);
     };
-  }, [open]);
+  }, [open, close]);
+
+  useEffect(() => {
+    if (open && box) menuRef.current?.querySelector<HTMLElement>("[role=menuitem]:not([disabled])")?.focus();
+  }, [open, box]);
+
+  const onMenuKey = (event: React.KeyboardEvent) => {
+    if (event.key !== "ArrowDown" && event.key !== "ArrowUp" && event.key !== "Tab") return;
+    if (event.key === "Tab") return setOpen(false);
+    event.preventDefault();
+    const items = Array.from(menuRef.current?.querySelectorAll<HTMLElement>("[role=menuitem]:not([disabled])") ?? []);
+    const index = items.indexOf(document.activeElement as HTMLElement);
+    items[(index + (event.key === "ArrowDown" ? 1 : -1) + items.length) % items.length]?.focus();
+  };
 
   return (
     <div ref={rootRef} className="relative inline-flex">
       {trigger({ onClick: () => setOpen((v) => !v), "aria-expanded": open, "aria-haspopup": "menu" })}
-      <AnimatePresence>
-        {open ? (
-          <motion.div
-            role="menu"
-            initial={{ opacity: 0, y: -6, scale: 0.97 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -4, scale: 0.98 }}
-            transition={{ duration: 0.16, ease: [0.22, 1, 0.36, 1] }}
-            className={cn(
-              "absolute top-full z-50 mt-2 min-w-[13rem] overflow-hidden rounded-2xl border border-line bg-white p-1.5 shadow-lift",
-              align === "end" ? "end-0" : "start-0",
-              className,
-            )}
-          >
-            {children(close)}
-          </motion.div>
-        ) : null}
-      </AnimatePresence>
+      <Portal>
+        <AnimatePresence>
+          {open && box ? (
+            <motion.div
+              ref={menuRef}
+              role="menu"
+              onKeyDown={onMenuKey}
+              initial={{ opacity: 0, scale: 0.97 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.98 }}
+              transition={{ duration: 0.14 }}
+              style={{ position: "fixed", top: box.top, left: box.left, right: box.right, translateY: box.up ? "-100%" : 0 }}
+              className={cn("z-[110] min-w-[13rem] overflow-hidden rounded-2xl border border-line bg-white p-1.5 shadow-lift", className)}
+            >
+              {children(close)}
+            </motion.div>
+          ) : null}
+        </AnimatePresence>
+      </Portal>
     </div>
   );
 }
