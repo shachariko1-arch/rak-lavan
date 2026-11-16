@@ -197,6 +197,7 @@
   Y.sfx = (name) => {
     if (!Y.state.settings.sound) return;
     try { ctx(); (SFX[name] || SFX.tap)(); } catch (e) { /* no audio */ }
+    try { if (navigator.vibrate && (name === 'ok' || name === 'bad' || name === 'win')) navigator.vibrate(name === 'ok' ? 12 : name === 'bad' ? [30, 40, 30] : [15, 40, 15, 40, 30]); } catch (e) { /* no haptics */ }
   };
 
   /* ───────── speech: recorded clips first, browser voice as fallback ───────── */
@@ -227,6 +228,12 @@
     try { if ('speechSynthesis' in window) speechSynthesis.getVoices(); } catch (e) { /* ignore */ }
   };
 
+  /* optional abilities offered when the app runs as a Claude artifact */
+  Y.cap = {};
+  if (window.claude && typeof window.claude.use === 'function') {
+    ['sample', 'tts', 'dictation'].forEach((n) => { try { window.claude.use(n).then((ns) => { Y.cap[n] = ns; }).catch(() => {}); } catch (e) { /* not offered */ } });
+  }
+
   const hasTts = () => 'speechSynthesis' in window && typeof SpeechSynthesisUtterance !== 'undefined';
   Y.canSpeak = () => true; // recorded clips ship with the app
   Y.canListen = () => !!(window.SpeechRecognition || window.webkitSpeechRecognition);
@@ -240,13 +247,18 @@
     voice = voice || vs.find((v) => /en[-_]US/i.test(v.lang)) || vs[0] || null;
   };
   if (hasTts()) { pickVoice(); try { speechSynthesis.addEventListener('voiceschanged', pickVoice); } catch (e) { /* older browsers */ } }
-  const tts = (text, slow) => {
+  const tts = (text, slow, lang) => {
+    if (Y.cap.tts) { Y.cap.tts.speak(text, { language: lang || 'en', rate: slow ? 0.75 : 1 }).catch(() => browserTts(text, slow, lang)); return; }
+    browserTts(text, slow, lang);
+  };
+  const browserTts = (text, slow, lang) => {
     if (!hasTts()) return;
     try {
       speechSynthesis.cancel();
       const u = new SpeechSynthesisUtterance(text);
-      u.lang = 'en-US';
-      if (voice) u.voice = voice;
+      u.lang = lang === 'he' ? 'he-IL' : 'en-US';
+      if (lang === 'he') { const hv = speechSynthesis.getVoices().find((v) => /^he|^iw/i.test(v.lang)); if (hv) u.voice = hv; }
+      else if (voice) u.voice = voice;
       u.rate = (slow ? 0.6 : 0.95) * Y.state.settings.rate;
       // speaking right after cancel() is silently dropped by some browsers
       setTimeout(() => { try { speechSynthesis.resume(); speechSynthesis.speak(u); } catch (e) { /* ignore */ } }, 70);
@@ -274,7 +286,11 @@
     const id = unitOf[text] || 'words';
     Y.loadPack(id).then(play);
   };
-  Y.stopSpeech = () => { speakSeq++; try { if (player) player.pause(); if (hasTts()) speechSynthesis.cancel(); } catch (e) { /* ignore */ } };
+  // Hebrew is read by the device's own Hebrew voice (or the Claude voice inside an artifact)
+  Y.canSpeakHe = () => !!Y.cap.tts || (hasTts() && speechSynthesis.getVoices().some((v) => /^he|^iw/i.test(v.lang)));
+  Y.speakHe = (text) => { if (!Y.state.settings.tts || !text) return; speakSeq++; try { if (player) player.pause(); } catch (e) { /* ignore */ } tts(text.replace(/\s*\/\s*/g, ', ').replace(/[()]/g, ' '), false, 'he'); };
+  Y.heBtn = (text) => '<button class="spk spk-he" data-act="say-he" data-say="' + Y.esc(text) + '" aria-label="השמע בעברית">ע</button>';
+  Y.stopSpeech = () => { speakSeq++; try { if (player) player.pause(); if (hasTts()) speechSynthesis.cancel(); if (Y.cap.tts) Y.cap.tts.stop(); } catch (e) { /* ignore */ } };
 
   /* ───────── Sabi the mascot: a sabra cactus with a detective hat and a backpack ───────── */
   const DEFS = '<defs>' +
@@ -368,13 +384,67 @@
     Y.closeSheet();
     const wrap = document.createElement('div');
     wrap.id = 'sheet'; wrap.className = 'sheet-wrap';
-    wrap.innerHTML = '<div class="sheet-back" data-act="' + ((opts && opts.sticky) ? '' : 'sheet-close') + '"></div>' +
-      '<div class="sheet" role="dialog" aria-modal="true">' + html + '</div>';
+    wrap.innerHTML = '<div class="sheet-back" data-act="' + ((opts && opts.sticky) ? '' : 'sheet-dismiss') + '"></div>' +
+      '<div class="sheet" role="dialog" aria-modal="true"><div class="sheet-grab" aria-hidden="true"></div>' + html + '</div>';
+    if (!(opts && opts.sticky)) dragToClose(wrap);
     Y.$('#shell').appendChild(wrap);
     Y.sfx('whoosh');
-    requestAnimationFrame(() => wrap.classList.add('open'));
+    const sh = wrap.querySelector('.sheet'); sh._y = sh.offsetHeight + 40; sh.style.transform = 'translateY(' + sh._y + 'px)';
+    requestAnimationFrame(() => { wrap.classList.add('open'); springY(sh, 0, 0, 1, 0.35); });
     const f = wrap.querySelector('button, input'); if (f && !(opts && opts.nofocus)) f.focus({ preventScroll: true });
   };
+  /* A small spring (Apple-style damping ratio + response). It always starts from the element's
+     live position and accepts a starting velocity, so a drag can hand off to it without a seam
+     and a new touch can interrupt it at any frame. */
+  const still = () => window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function springY(el, to, v0, damping, response, done) {
+    cancelAnimationFrame(el._raf);
+    if (still()) { el._y = to; el.style.transform = to ? 'translateY(' + to + 'px)' : ''; if (done) done(); return; }
+    const w = (2 * Math.PI) / response; let x = (el._y || 0) - to, v = v0 || 0, last = performance.now();
+    const step = (now) => {
+      const dt = Math.min(0.032, (now - last) / 1000); last = now;
+      v += (-w * w * x - 2 * damping * w * v) * dt; x += v * dt;
+      el._y = to + x; el.style.transform = 'translateY(' + el._y + 'px)';
+      if (Math.abs(x) < 0.5 && Math.abs(v) < 8) { el._y = to; el.style.transform = to ? 'translateY(' + to + 'px)' : ''; if (done) done(); }
+      else el._raf = requestAnimationFrame(step);
+    };
+    el._raf = requestAnimationFrame(step);
+  }
+  const project = (v, rate) => (v / 1000) * rate / (1 - rate);            // where a flick would come to rest
+  const rubber = (over, dim) => (over * dim * 0.55) / (dim + 0.55 * Math.abs(over)); // soft resistance past the edge
+  function dismissSheet(wrap, v) {
+    const sheet = wrap.querySelector('.sheet');
+    wrap.classList.remove('open'); wrap.style.pointerEvents = 'none';
+    const gone = () => { if (wrap.isConnected) wrap.remove(); };
+    springY(sheet, sheet.offsetHeight + 40, v || 0, 1, 0.3, gone); setTimeout(gone, 320); // off-screen well before the spring fully settles
+  }
+  // the sheet tracks the finger 1:1, resists when pulled up, and on release goes where the flick was heading
+  function dragToClose(wrap) {
+    const sheet = wrap.querySelector('.sheet'); let start = null, base = 0, moved = false, hist = [];
+    sheet.addEventListener('pointerdown', (e) => {
+      if (sheet.scrollTop > 0 || e.target.closest('input, .seg')) return;
+      start = e.clientY; base = sheet._y || 0; moved = false; hist = [[e.clientY, performance.now()]];
+    });
+    sheet.addEventListener('pointermove', (e) => {
+      if (start == null) return;
+      const dy = e.clientY - start;
+      if (!moved) { if (Math.abs(dy) < 10) return; moved = true; cancelAnimationFrame(sheet._raf); try { sheet.setPointerCapture(e.pointerId); } catch (err) { /* ignore */ } }
+      let y = base + dy; if (y < 0) y = -rubber(-y, sheet.offsetHeight);
+      sheet._y = y; sheet.style.transform = 'translateY(' + y + 'px)';
+      hist.push([e.clientY, performance.now()]); if (hist.length > 5) hist.shift();
+    });
+    const end = () => {
+      if (start == null) return; start = null;
+      if (!moved) return;
+      const a = hist[0], z = hist[hist.length - 1], v = z[1] > a[1] ? ((z[0] - a[0]) / (z[1] - a[1])) * 1000 : 0;
+      // a drag must not also count as a tap on whatever was under the finger
+      const eat = (ev) => { ev.stopPropagation(); ev.preventDefault(); }; document.addEventListener('click', eat, { capture: true, once: true }); setTimeout(() => document.removeEventListener('click', eat, true), 80);
+      if ((sheet._y || 0) + project(v, 0.99) > sheet.offsetHeight * 0.5) dismissSheet(wrap, v);
+      else springY(sheet, 0, v, 0.8, 0.3);
+    };
+    sheet.addEventListener('pointerup', end); sheet.addEventListener('pointercancel', end);
+  }
+  Y.dismissSheet = () => { const w = Y.$('#sheet'); if (w) dismissSheet(w, 0); };
   Y.closeSheet = () => { const s = Y.$('#sheet'); if (s) s.remove(); };
 
   Y.confetti = (small) => {

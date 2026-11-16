@@ -11,7 +11,7 @@
     if (fn) fn(el, e);
   });
   document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') { const s = Y.$('#sheet .sheet-back[data-act="sheet-close"]'); if (s) Y.closeSheet(); }
+    if (e.key === 'Escape') { const s = Y.$('#sheet .sheet-back[data-act="sheet-dismiss"]'); if (s) Y.dismissSheet(); }
     if (e.key === 'Enter' && !e.target.closest('button, input, a')) { const b = Y.$('#mainbtn'); if (b && !b.disabled) b.click(); }
   });
 

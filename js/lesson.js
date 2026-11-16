@@ -170,7 +170,7 @@
         '<button class="spk spk-slow" data-act="say" data-slow="1" data-say="' + esc(ex.audio) + '" aria-label="השמע לאט">🐢</button></div>';
     } else if (ex.prompt) {
       h += '<div class="ex-prompt-row">' + Y.mascot('think', 80) + '<div class="bubble ex-prompt"' + (ex.promptLtr ? ' dir="ltr"' : '') + '>' +
-        (ex.audio ? Y.speakBtn(ex.audio) : '') + '<span>' + esc(ex.prompt) + '</span>' + (ex.sub ? '<small dir="rtl">' + esc(ex.sub) + '</small>' : '') + '</div></div>';
+        (ex.audio ? Y.speakBtn(ex.audio) : (!ex.promptLtr && Y.canSpeakHe() ? Y.heBtn(ex.prompt) : '')) + '<span>' + esc(ex.prompt) + '</span>' + (ex.sub ? '<small dir="rtl">' + esc(ex.sub) + '</small>' : '') + '</div></div>';
     }
     return h;
   };
@@ -188,7 +188,7 @@
       const w = ex.word, e = ex.example;
       body.innerHTML = '<h2 class="ex-title">מילה חדשה</h2>' +
         '<button class="word-card" data-act="say" data-say="' + esc(w.en) + '"><span class="word-count">' + ex.n + '/' + ex.of + '</span><span class="word-em">' + w.em + '</span>' +
-        '<span class="word-en" dir="ltr">' + esc(w.en) + '<span class="spk">' + Y.ICON.speaker + '</span></span><span class="word-he">' + esc(w.he) + '</span></button>' +
+        '<span class="word-en" dir="ltr">' + esc(w.en) + '<span class="spk">' + Y.ICON.speaker + '</span></span><span class="word-he">' + esc(w.he) + '</span></button>' + (Y.canSpeakHe() ? '<button class="link-btn he-link" data-act="say-he" data-say="' + esc(w.he) + '">🔊 להשמיע בעברית</button>' : '') +
         (e ? '<p class="ex-label">דוגמה:</p><button class="ex-line" data-act="say" data-say="' + esc(e.en) + '"><span class="spk">' + Y.ICON.speaker + '</span><span>' + esc(e.en) + '<small>' + esc(e.he) + '</small></span></button>' : '');
       Y.noteWord(w, false);
       foot(mainBtn('הבא' + Y.ICON.arrow, 'ex-continue'));
@@ -199,6 +199,7 @@
         ex.options.map((o, i) => '<button class="opt" role="radio" aria-checked="false" data-act="opt" data-i="' + i + '">' +
           (o.emoji ? '<span class="opt-em">' + o.emoji + '</span>' : '') + '<span class="opt-lbl"' + (o.ltr ? ' dir="ltr"' : '') + '>' + esc(o.label) + '</span></button>').join('') + '</div>';
       foot(skipLink(ex) + mainBtn('בדיקה', 'ex-check', true));
+      if (!ex.audio && ex.prompt && !ex.promptLtr && Y.state.user.who === 'kid') setTimeout(() => { if (P && P.cur === ex) Y.speakHe(ex.prompt); }, 450);
       if (ex.audio) setTimeout(() => { if (P && P.cur === ex) Y.speak(ex.audio); }, 450);
     },
     build: (ex, body) => {
@@ -280,6 +281,7 @@
   Y.currentExercise = () => (P ? P.cur : null);
 
   const A = Y.actions = Y.actions || {};
+  A['say-he'] = (el) => { Y.speakHe(el.dataset.say); el.classList.remove('pop'); void el.offsetWidth; el.classList.add('pop'); };
   A['say'] = (el) => { Y.speak(el.dataset.say, !!el.dataset.slow); el.classList.remove('pop'); void el.offsetWidth; el.classList.add('pop'); };
   A['scene-next'] = () => {
     const ex = P.cur;
@@ -403,7 +405,8 @@
       '<button class="btn btn-ghost btn-block" data-act="lesson-leave">יציאה</button></div>');
   };
   A['lesson-leave'] = () => { stopRec(); Y.stopSpeech(); P = null; Y.closeSheet(); Y.go(Y.lastTab || 'home'); };
-  A['sheet-close'] = () => Y.closeSheet();
+  A['sheet-close'] = () => Y.dismissSheet();
+  A['sheet-dismiss'] = () => Y.dismissSheet();
 
   /* out of hearts */
   Y.noHearts = (mid) => {

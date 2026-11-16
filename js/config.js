@@ -5,6 +5,10 @@ Y.CONFIG = {
   // While empty, the Google button creates a local profile on this device only.
   GOOGLE_CLIENT_ID: '',
 
+  // AI conversations: URL of your own small server that forwards the chat to an AI model
+  // (see server/ai-chat-worker.js). While empty, AI chat works only inside a Claude artifact.
+  AI_ENDPOINT: '',
+
   // Subscription
   PRICE_ILS: 49,          // monthly price in shekels
   TRIAL_DAYS: 7,          // free trial length, 0 = no trial

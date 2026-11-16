@@ -101,7 +101,7 @@
 
   /* ═════════ shared chrome ═════════ */
   const TABS = [['home', 'בית', 'home'], ['path', 'מסלול', 'path'], ['practice', 'חזרה', 'review'], ['profile', 'פרופיל', 'profile']];
-  const TAB_OF = { league: 'home', plus: 'profile' };
+  const TAB_OF = { league: 'home', plus: 'profile', ai: 'home' };
   const nav = (cur) => '<nav class="tabs" aria-label="ניווט ראשי">' + TABS.map((t) =>
     '<button class="tab' + (t[0] === cur ? ' on' : '') + '" data-act="tab" data-tab="' + t[0] + '"' + (t[0] === cur ? ' aria-current="page"' : '') + '>' + Y.ICON[t[2]] + '<span>' + t[1] + '</span></button>').join('') + '</nav>';
   const page = (cur, inner, cls) => '<main class="page ' + (cls || '') + '" id="page">' + inner + '</main>' + nav(TAB_OF[cur] || cur);
@@ -145,6 +145,7 @@
       '<header class="hello">' + avatar() + '<h1>שלום, ' + esc(st.user.name || 'אורח') + ' 👋</h1><button class="heart-chip" data-act="hearts-info" aria-label="לבבות">❤️ <b>' + (Y.isPlus() ? '∞' : Y.hearts()) + '</b></button></header>' +
       '<div class="stats"><div class="stat"><b>🔥 ' + Y.liveStreak() + '</b><small>ימי רצף</small></div><div class="stat"><b class="gold">⭐ ' + st.xp + '</b><small>XP</small></div><div class="stat"><b dir="ltr">' + Y.level() + '</b><small>הרמה שלך</small></div></div>' +
       mission +
+      '<button class="mini-card is-ai" data-act="tab" data-tab="ai"><span class="mini-em">🤖</span><span class="mini-txt"><b>שיחה עם סאבי AI</b><small>סימולציה חיה: בית קפה, שדה תעופה, ראיון</small></span><span class="chev">' + Y.ICON.back + '</span></button>' +
       '<button class="mini-card" data-act="quick-review"><span class="mini-em">🏋️</span><span class="mini-txt"><b>' + (nRev ? nRev + ' מילים לחזרה' : 'חזרה על מילים') + '</b><small>' + (st.mistakes.length ? 'חיזוק מילים שהתבלבלת בהן' : 'חיזוק מילים שלמדת') + '</small></span><span class="chev">' + Y.ICON.back + '</span></button>' +
       '<button class="mini-card" data-act="tab" data-tab="league"><span class="mini-em">' + lg.tier[1] + '</span><span class="mini-txt"><b>' + lg.tier[0] + ' · מקום ' + lg.rank + '</b><small>' + Y.xpTxt(lg.mine) + ' השבוע</small></span><span class="chev">' + Y.ICON.back + '</span></button>' +
       (Y.isPlus() ? '' : '<button class="mini-card is-gold" data-act="tab" data-tab="plus"><span class="mini-em">👑</span><span class="mini-txt"><b>יאללה פרימיום</b><small>כל השיעורים, לבבות ללא הגבלה</small></span><span class="pill pill-gold">' + C.PRICE_ILS + ' ₪</span></button>') +
@@ -222,7 +223,7 @@
   /* ═════════ PREMIUM ═════════ */
   S.plus = () => {
     const st = Y.state, price = C.PRICE_ILS, trial = C.TRIAL_DAYS;
-    const perks = [['כל ' + Y.totalLessons() + ' השיעורים והמסלולים', 'טיולים, עבודה, יומיום וילדים'], ['לבבות ללא הגבלה', 'טועים, לומדים וממשיכים בלי לחכות'], ['חזרה חכמה על מילים', 'התרגול מתמקד במה שקשה לך'], ['אימון הקשבה', 'מבינים אנגלית מדוברת'], ['תוכן חדש בכל חודש', 'המסלולים ממשיכים לגדול']];
+    const perks = [['כל ' + Y.totalLessons() + ' השיעורים והמסלולים', 'טיולים, עבודה, יומיום וילדים'], ['שיחות AI ללא הגבלה', 'מדברים עם סאבי כמה שרוצים'], ['לבבות ללא הגבלה', 'טועים, לומדים וממשיכים בלי לחכות'], ['חזרה חכמה על מילים', 'התרגול מתמקד במה שקשה לך'], ['אימון הקשבה', 'מבינים אנגלית מדוברת'], ['תוכן חדש בכל חודש', 'המסלולים ממשיכים לגדול']];
     const list = '<ul class="perks">' + perks.map((p) => '<li><span>✓</span><div><b>' + p[0] + '</b><small>' + p[1] + '</small></div></li>').join('') + '</ul>';
     const hero = '<section class="plus-hero"><div class="plus-crown">👑</div>' + '<div class="wordmark wordmark-s" dir="ltr"><span>YALLA <b style="padding:0">English</b></span><i>Premium</i></div>';
     if (Y.isPlus()) {
@@ -233,7 +234,7 @@
       '<button class="btn btn-gold btn-block price-btn" data-act="plus-buy"><b>' + price + '</b> ₪ לחודש</button>' +
       '<p class="fine">' + (trial ? trial + ' ימי ניסיון חינם · ' : '') + 'ביטול בכל עת · ללא התחייבות</p>' +
       '<table class="cmp"><thead><tr><th></th><th>חינם</th><th>פרימיום</th></tr></thead><tbody>' +
-      [['יחידות הבסיס ושיעור טעימה מכל יחידה', 1, 1], ['כל ' + Y.totalLessons() + ' השיעורים', 0, 1], ['לבבות ללא הגבלה', 0, 1], ['חזרה על טעויות ואימון הקשבה', 0, 1], ['מילון אישי וליגה שבועית', 1, 1]].map((r) => '<tr><td>' + r[0] + '</td><td>' + (r[1] ? '✓' : '–') + '</td><td class="yes">' + (r[2] ? '✓' : '–') + '</td></tr>').join('') + '</tbody></table>' +
+      [['יחידות הבסיס ושיעור טעימה מכל יחידה', 1, 1], ['כל ' + Y.totalLessons() + ' השיעורים', 0, 1], ['שיחות AI עם סאבי', '6 ביום', 1], ['לבבות ללא הגבלה', 0, 1], ['חזרה על טעויות ואימון הקשבה', 0, 1], ['מילון אישי וליגה שבועית', 1, 1]].map((r) => '<tr><td>' + r[0] + '</td><td>' + (typeof r[1] === 'string' ? r[1] : r[1] ? '✓' : '–') + '</td><td class="yes">' + (r[2] ? '✓' : '–') + '</td></tr>').join('') + '</tbody></table>' +
       '<div class="sky-wrap">' + Y.skyline() + '</div>');
   };
   A['plus-buy'] = () => {
@@ -295,7 +296,7 @@
     const app = Y.$('#app');
     Y.$$('.confetti').forEach((c) => c.remove());
     Y.stopSpeech();
-    app.innerHTML = S[name]();
+    app.innerHTML = S[name]() + (name === 'ai' ? nav('home') : '');
     app.className = 'app app-' + name;
     app.style.animation = 'none'; void app.offsetWidth; app.style.animation = '';
     const p = Y.$('#page'); if (p) p.scrollTop = 0;
