@@ -76,12 +76,12 @@ export function Overview() {
       <div className="relative mb-5 overflow-hidden rounded-3xl bg-ink p-6 text-ivory shadow-lift sm:p-8">
         <div aria-hidden className="absolute -end-20 -top-24 size-72 rounded-full bg-gold/25 blur-3xl" />
         <div className="relative flex flex-wrap items-end justify-between gap-6">
-          <div>
+          <div className="min-w-0">
             <p className="flex items-center gap-2 text-xs font-medium uppercase tracking-[0.2em] text-gold-soft he:tracking-normal">
               <span className="size-2 animate-pulse-dot rounded-full bg-confirmed" />
               {tr("Live attendance", "נוכחות בזמן אמת")}
             </p>
-            <p className="mt-3 flex items-baseline gap-3">
+            <p className="mt-3 flex flex-wrap items-baseline gap-x-3">
               <AnimatedNumber value={stats.attendees} className="font-serif text-7xl leading-none sm:text-8xl" />
               <span className="text-sm text-ivory/70">{tr("guests are coming", "אורחים מגיעים")}</span>
             </p>
@@ -121,8 +121,8 @@ export function Overview() {
 
       <div className="mt-5 grid gap-5 lg:grid-cols-5">
         {/* Activity */}
-        <Card className="p-5 sm:p-6 lg:col-span-3">
-          <div className="mb-3 flex items-center justify-between gap-3">
+        <Card className="min-w-0 p-5 sm:p-6 lg:col-span-3">
+          <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
             <h2 className="font-serif text-2xl he:text-xl">{tr("Latest replies", "תשובות אחרונות")}</h2>
             {mode === "demo" ? (
               <Button variant="soft" size="sm" icon={<Zap className="size-3.5" />} onClick={() => void simulate()}>
@@ -151,7 +151,7 @@ export function Overview() {
           </ul>
         </Card>
 
-        <div className="space-y-5 lg:col-span-2">
+        <div className="min-w-0 space-y-5 lg:col-span-2">
           <Card className="flex items-center gap-5 p-5 sm:p-6">
             <Ring value={stats.responseRate} label={tr("Response rate", "שיעור מענה")} />
             <div className="min-w-0">

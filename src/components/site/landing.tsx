@@ -157,9 +157,9 @@ export function Landing() {
                 <p className="mt-2 font-serif text-7xl leading-none"><AnimatedNumber value={441} /></p>
                 <div className="mt-6 grid grid-cols-3 gap-3 text-center">
                   {([[218, "confirmed"], [42, "declined"], [90, "pending"]] as const).map(([n, status]) => (
-                    <div key={status} className="rounded-2xl bg-cream/70 p-3">
+                    <div key={status} className="min-w-0 rounded-2xl bg-cream/70 p-2 sm:p-3">
                       <p className="font-serif text-3xl"><AnimatedNumber value={n} /></p>
-                      <StatusBadge status={status} className="mt-1.5" />
+                      <StatusBadge status={status} className="mt-1.5 max-w-full !whitespace-normal !px-2 text-[10px] sm:text-xs" />
                     </div>
                   ))}
                 </div>
