@@ -25,7 +25,7 @@ export function ValueStrip() {
         <SectionHeading title={t.value.title} align="center" />
       </Container>
       <div className="mask-fade-x mt-14 overflow-hidden" dir="ltr">
-        <div className={cn("flex w-max gap-4 hover:[animation-play-state:paused]", locale === "he" ? "animate-marquee-rtl" : "animate-marquee")}>
+        <div className={cn("flex w-max gap-4 hover:[animation-play-state:paused]", "animate-marquee")}>
           {items.map((it, i) => {
             const Icon = icons[i % 4];
             return (

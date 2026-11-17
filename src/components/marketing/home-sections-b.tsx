@@ -268,7 +268,7 @@ export function WhatsAppShowcase() {
                 <div className="flex-1 space-y-2 p-3">
                   <AnimatePresence>
                     {step >= 1 && (
-                      <motion.div initial={{ opacity: 0, y: 12, scale: 0.96 }} animate={{ opacity: 1, y: 0, scale: 1 }} className="ms-auto max-w-[88%] rounded-[10px] rounded-se-[2px] bg-[#005c4b] p-2 text-white">
+                      <motion.div key="msg" initial={{ opacity: 0, y: 12, scale: 0.96 }} animate={{ opacity: 1, y: 0, scale: 1 }} className="ms-auto max-w-[88%] rounded-[10px] rounded-se-[2px] bg-[#005c4b] p-2 text-white">
                         <div className="mb-1.5 overflow-hidden rounded-[6px] bg-black/25">
                           <div className="h-12 bg-[linear-gradient(135deg,#1b1c22,#3b2f22)]" />
                           <p className="p-1.5 text-[9.5px] text-white/85">{t.whatsapp.linkTitle}</p>
@@ -279,7 +279,7 @@ export function WhatsAppShowcase() {
                       </motion.div>
                     )}
                     {step >= 2 && (
-                      <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="max-w-[70%] rounded-[10px] rounded-ss-[2px] bg-[#202c33] p-2 text-white">
+                      <motion.div key="reply" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="max-w-[70%] rounded-[10px] rounded-ss-[2px] bg-[#202c33] p-2 text-white">
                         {t.whatsapp.reply}
                       </motion.div>
                     )}

@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { useId } from "react";
 import { useLocale } from "@/lib/i18n/client";
 import type { Locale } from "@/lib/i18n/config";
 import { cn } from "@/lib/utils";
@@ -13,6 +14,7 @@ const OPTIONS: { value: Locale; label: string; lang: string }[] = [
 /** EN / עברית toggle. Changes content and layout direction, persisted in a cookie. */
 export function LanguageSwitcher({ tone = "dark", className, label = "Language" }: { tone?: "dark" | "light"; className?: string; label?: string }) {
   const { locale, setLocale, pending } = useLocale();
+  const pillId = useId();
   return (
     <div
       role="radiogroup"
@@ -42,7 +44,7 @@ export function LanguageSwitcher({ tone = "dark", className, label = "Language" 
           >
             {active && (
               <motion.span
-                layoutId={`lang-pill-${tone}`}
+                layoutId={`lang-pill-${pillId}`}
                 className={cn("absolute inset-0 -z-10 rounded-full", tone === "dark" ? "bg-champagne" : "bg-ink")}
                 transition={{ type: "spring", stiffness: 380, damping: 32 }}
               />
