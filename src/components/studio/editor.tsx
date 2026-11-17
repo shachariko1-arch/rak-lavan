@@ -6,7 +6,7 @@ import { InvitationCard } from "@/components/invitation/card";
 import { Field, Input, Segmented, Textarea } from "@/components/ui/form";
 import { useToast } from "@/components/ui/toast";
 import { getRepository } from "@/lib/data";
-import { ACCEPTED_IMAGE_TYPES, MAX_UPLOAD_BYTES } from "@/lib/data/image";
+import { ACCEPTED_IMAGE_TYPES, MAX_UPLOAD_BYTES, blobToDataUrl, downscaleImage } from "@/lib/data/image";
 import { useI18n } from "@/lib/i18n";
 import { TEMPLATES, getTemplate } from "@/lib/templates";
 import type { InviteText, Locale, Palette, Wedding } from "@/lib/types";
@@ -113,7 +113,8 @@ export function DetailsFields({ wedding, patch, locale }: { wedding: Wedding; pa
   );
 }
 
-export function PhotosField({ wedding, patch, max = 6 }: { wedding: Wedding; patch: Patch; max?: number }) {
+/** `local` keeps photos in the browser (as compact JPEG data URLs) until the wedding is published. */
+export function PhotosField({ wedding, patch, max = 6, local }: { wedding: Wedding; patch: Patch; max?: number; local?: boolean }) {
   const { tr } = useI18n();
   const { toast } = useToast();
   const input = useRef<HTMLInputElement>(null);
@@ -129,7 +130,7 @@ export function PhotosField({ wedding, patch, max = 6 }: { wedding: Wedding; pat
           toast(tr("Use JPG, PNG or WebP up to 12 MB", "אפשר להעלות JPG, PNG או WebP עד 12MB"), { tone: "error" });
           continue;
         }
-        urls.push(await getRepository().uploadPhoto(file, wedding.id));
+        urls.push(local ? await blobToDataUrl(await downscaleImage(file, 1100, 0.74)) : await getRepository().uploadPhoto(file, wedding.id));
       }
       if (urls.length) patch({ photos: [...wedding.photos, ...urls] });
     } catch {
