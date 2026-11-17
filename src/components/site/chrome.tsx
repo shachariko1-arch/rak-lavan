@@ -51,6 +51,8 @@ export function SiteFooter() {
           <Link className="link-underline w-fit" href={href("/create")}>{tr("Create an invitation", "יצירת הזמנה")}</Link>
           <Link className="link-underline w-fit" href={href("/templates")}>{tr("Invitation designs", "עיצובי הזמנות")}</Link>
           <Link className="link-underline w-fit" href={href("/login")}>{tr("Couple dashboard", "לוח בקרה לזוגות")}</Link>
+          {/* Invitations live under their own root layout, so this is a full page load by design. */}
+          {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
           <a className="link-underline w-fit" href="/invite/daniel-and-noa">{tr("See a live invitation", "הזמנה לדוגמה")}</a>
         </nav>
         <nav aria-label={tr("Legal", "מידע משפטי")} className="flex flex-col gap-2.5 text-sm text-ink-soft">

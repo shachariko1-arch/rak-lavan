@@ -443,7 +443,7 @@ function Royal({ d }: { d: CardData }) {
 
 function Editorial({ d }: { d: CardData }) {
   const animated = useContext(CardMotion);
-  const nameSize = fitSize(22, 6.2, d.nameLength);
+  const nameSize = fitSize(22, 5.4, d.nameLength + 0.6);
   return (
     <>
       <div className="absolute inset-0 overflow-hidden">

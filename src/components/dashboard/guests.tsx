@@ -108,11 +108,11 @@ export function GuestsPage() {
     toast(tr(`${list.length} guests exported`, `${list.length} אורחים יוצאו`));
   };
 
-  const SortHead = ({ k, children, className }: { k: SortKey; children: React.ReactNode; className?: string }) => {
+  const sortHead = (k: SortKey, children: React.ReactNode, className?: string) => {
     const active = sort.key === k;
     const Icon = !active ? ArrowUpDown : sort.dir === 1 ? ArrowUp : ArrowDown;
     return (
-      <th scope="col" aria-sort={active ? (sort.dir === 1 ? "ascending" : "descending") : "none"} className={cn("px-2.5 py-3 text-start font-medium", className)}>
+      <th key={k} scope="col" aria-sort={active ? (sort.dir === 1 ? "ascending" : "descending") : "none"} className={cn("px-2.5 py-3 text-start font-medium", className)}>
         <button type="button" onClick={() => setSort((s) => ({ key: k, dir: s.key === k ? (s.dir === 1 ? -1 : 1) : k === "name" ? 1 : -1 }))} className={cn("inline-flex items-center gap-1.5 whitespace-nowrap rounded hover:text-ink", active && "text-ink")}>
           {children}
           <Icon aria-hidden className={cn("size-3.5", !active && "opacity-40")} />
@@ -120,7 +120,7 @@ export function GuestsPage() {
       </th>
     );
   };
-  const Th = ({ children, className }: { children?: React.ReactNode; className?: string }) => <th scope="col" className={cn("whitespace-nowrap px-3 py-3 text-start font-medium", className)}>{children}</th>;
+  const th = (children: React.ReactNode, className?: string) => <th scope="col" className={cn("whitespace-nowrap px-3 py-3 text-start font-medium", className)}>{children}</th>;
 
   const rowActions = (g: Guest) => (
     <Menu
@@ -235,15 +235,15 @@ export function GuestsPage() {
                 <thead className="border-b border-line bg-cream/50 text-xs text-stone">
                   <tr>
                     <th scope="col" className="w-10 ps-5"><Checkbox aria-label={tr("Select all on this page", "בחירת כל האורחים בעמוד")} checked={allVisible} indeterminate={!allVisible && someVisible} onChange={toggleVisible} /></th>
-                    <SortHead k="name">{tr("Guest name", "שם האורח")}</SortHead>
-                    <Th>{tr("Phone", "טלפון")}</Th>
-                    <Th>{tr("Group / family", "קבוצה / משפחה")}</Th>
-                    <SortHead k="attendees">{tr("Attendees", "מגיעים")}</SortHead>
-                    <Th>{tr("RSVP status", "סטטוס")}</Th>
-                    <Th>{tr("Dietary", "תזונה")}</Th>
-                    <SortHead k="sent">{tr("Invitation sent", "נשלחה")}</SortHead>
-                    <SortHead k="response">{tr("Last response", "תשובה אחרונה")}</SortHead>
-                    <Th className="pe-5 text-end"><span className="sr-only">{tr("Actions", "פעולות")}</span></Th>
+                    {sortHead("name", tr("Guest name", "שם האורח"))}
+                    {th(tr("Phone", "טלפון"))}
+                    {th(tr("Group / family", "קבוצה / משפחה"))}
+                    {sortHead("attendees", tr("Attendees", "מגיעים"))}
+                    {th(tr("RSVP status", "סטטוס"))}
+                    {th(tr("Dietary", "תזונה"))}
+                    {sortHead("sent", tr("Invitation sent", "נשלחה"))}
+                    {sortHead("response", tr("Last response", "תשובה אחרונה"))}
+                    {th(<span className="sr-only">{tr("Actions", "פעולות")}</span>, "pe-5 text-end")}
                   </tr>
                 </thead>
                 <tbody>

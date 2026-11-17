@@ -99,7 +99,7 @@ export function Landing() {
         <section ref={hero} className="grain relative flex min-h-svh items-center overflow-hidden bg-ink pb-16 pt-24">
           <motion.div aria-hidden className="absolute inset-0" style={{ y: bgY }}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/demo/scene-1.svg" alt="" className="size-full animate-kenburns object-cover" />
+            <img src="/demo/scene-1.svg" alt="" className="size-full scale-125 animate-kenburns object-cover blur-2xl" />
           </motion.div>
           <div aria-hidden className="absolute inset-0 bg-[linear-gradient(to_bottom,rgb(21_18_15/0.72),rgb(21_18_15/0.42)_45%,rgb(21_18_15/0.9))]" />
           <Particles kind="gold" colors={["#e9d19c", "#fff3d6"]} />

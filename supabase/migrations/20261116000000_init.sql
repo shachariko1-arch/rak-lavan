@@ -9,7 +9,6 @@
 --     wedding slug plus their own unguessable token, and return only what an invitation
 --     page needs. A guest can read and change their own RSVP and nobody else's.
 
-create extension if not exists pgcrypto;
 
 /* ───────────────────────────── helpers ───────────────────────────── */
 
