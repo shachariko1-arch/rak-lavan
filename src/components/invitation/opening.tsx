@@ -31,7 +31,7 @@ export function OpeningOverlay(props: OpeningProps) {
   return <SimpleOpening {...props} />;
 }
 
-function Prompt({ locale, onClick, light }: { locale: Locale; onClick: () => void; light?: boolean }) {
+function Prompt({ locale, onClick, light, focus = true }: { locale: Locale; onClick: () => void; light?: boolean; focus?: boolean }) {
   const t = inviteCopy[locale];
   return (
     <motion.button
@@ -42,7 +42,7 @@ function Prompt({ locale, onClick, light }: { locale: Locale; onClick: () => voi
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.6, duration: 0.8, ease: EASE }}
-      autoFocus
+      autoFocus={focus}
     >
       {t.openInvitation}
     </motion.button>
@@ -159,7 +159,7 @@ export function EnvelopeAnimation({ design, initials, locale, onOpened, onIntera
           </motion.div>
         </motion.div>
 
-        {!opening && !autoPlay && <Prompt locale={locale} onClick={open} light={isDark(design.colors.background)} />}
+        {!opening && !autoPlay && <Prompt locale={locale} onClick={open} light={isDark(design.colors.background)} focus={!contained} />}
       </div>
     </motion.div>
   );
@@ -187,7 +187,7 @@ function SimpleOpening({ kind, design, initials, locale, onOpened, onInteract, a
       >
         {initials}
       </motion.span>
-      {!autoPlay && <Prompt locale={locale} onClick={open} light={dark} />}
+      {!autoPlay && <Prompt locale={locale} onClick={open} light={dark} focus={!contained} />}
     </motion.div>
   );
 

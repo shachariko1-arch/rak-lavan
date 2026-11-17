@@ -151,7 +151,8 @@
   .font-display {
     font-family: var(--font-display);
     font-weight: 400;
-    font-feature-settings: "liga", "dlig";
+    font-feature-settings: "liga", "lnum";
+    font-variant-numeric: lining-nums;
   }
   :lang(he) .font-display {
     font-weight: 400;
@@ -217,6 +218,7 @@
 @layer components {
   .inv-root {
     container-type: inline-size;
+    font-variant-numeric: lining-nums;
   }
   .inv-eyebrow {
     font-size: clamp(10px, 2.9cqw, 13px);

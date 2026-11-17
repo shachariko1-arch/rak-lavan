@@ -86,7 +86,7 @@ export function InvitationCover({ design, facts, guest, revealed = true, classNa
 
   return (
     <section
-      className={cn("relative isolate flex min-h-full w-full flex-col overflow-hidden", className)}
+      className={cn("relative isolate flex w-full flex-col overflow-hidden", className)}
       dir={locale === "he" ? "rtl" : "ltr"}
       lang={locale}
     >

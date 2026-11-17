@@ -42,6 +42,8 @@ type Props = {
   replayKey?: number;
   onTrack?: (event: "rsvp_started") => void;
   className?: string;
+  /** When > 0 the opening plays automatically (marketing "Play" button). */
+  autoPlayKey?: number;
 };
 
 /** The complete guest-facing invitation, rendered purely from validated design data. */
@@ -56,6 +58,7 @@ export function InvitationExperience({
   replayKey = 0,
   onTrack,
   className,
+  autoPlayKey = 0,
 }: Props) {
   const locale = design.language as Locale;
   const [opened, setOpened] = useState(!showOpening);
@@ -180,6 +183,7 @@ export function InvitationExperience({
             initials={coupleInitials(facts)}
             locale={locale}
             contained={contained}
+            autoPlay={autoPlayKey > 0}
             onInteract={startMusic}
             onOpened={() => setOpened(true)}
           />

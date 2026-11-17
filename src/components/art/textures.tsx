@@ -36,7 +36,7 @@ export function Marble({ tint = "#f4efe6", accent = "#cfc3ad" }: { tint?: string
           <feTurbulence type="fractalNoise" baseFrequency="0.006 0.018" numOctaves="4" seed="7" />
           <feColorMatrix
             type="matrix"
-            values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -2.2 1.35"
+            values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -3.2 1.6"
           />
           <feGaussianBlur stdDeviation="0.6" />
         </filter>
@@ -46,7 +46,7 @@ export function Marble({ tint = "#f4efe6", accent = "#cfc3ad" }: { tint?: string
         </radialGradient>
       </defs>
       <rect width="400" height="800" fill={tint} />
-      <rect width="400" height="800" fill={accent} filter={`url(#${id}-m)`} opacity="0.55" />
+      <rect width="400" height="800" fill={accent} filter={`url(#${id}-m)`} opacity="0.22" />
       <rect width="400" height="800" fill={`url(#${id}-v)`} />
     </svg>
   );

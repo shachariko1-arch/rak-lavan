@@ -92,10 +92,12 @@ export function RevealLines({
   immediate?: boolean;
 }) {
   const reduce = useReducedMotion();
-  const Comp = as;
-  const props = immediate ? { initial: "hidden", animate: "show" } : { initial: "hidden", whileInView: "show", viewport: { once: true, margin: "0px 0px -10% 0px" } };
+  const Comp = motionFor(as);
+  const trigger = immediate
+    ? { initial: "hidden", animate: "show" }
+    : { initial: "hidden", whileInView: "show", viewport: { once: true, margin: "0px 0px -10% 0px" } };
   return (
-    <Comp className={className}>
+    <Comp className={className} {...trigger}>
       {lines.map((line, i) => (
         <span key={i} className="block overflow-hidden pb-[0.08em]">
           <motion.span
@@ -104,7 +106,6 @@ export function RevealLines({
               hidden: { y: reduce ? 0 : "105%", opacity: reduce ? 0 : 1 },
               show: { y: "0%", opacity: 1, transition: { duration: reduce ? 0.3 : 1.1, delay: delay + i * 0.14, ease: EASE } },
             }}
-            {...props}
           >
             {line}
           </motion.span>
